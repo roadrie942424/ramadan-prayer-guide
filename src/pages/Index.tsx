@@ -1,16 +1,20 @@
 import { useState } from "react";
-import { prayerTimings } from "@/data/prayerData";
+import { getGovernorateTimings } from "@/data/governorateData";
 import DayCard from "@/components/DayCard";
 import PrayerModal from "@/components/PrayerModal";
 import CountdownTimer from "@/components/CountdownTimer";
 import SadaqahHeader from "@/components/SadaqahHeader";
+import SettingsPanel from "@/components/SettingsPanel";
 import ramadanBg from "@/assets/ramadan-bg.jpg";
 
 const Index = () => {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [selectedGovernorate, setSelectedGovernorate] = useState("al-rashid");
+
+  const timings = getGovernorateTimings(selectedGovernorate);
 
   const selectedData = selectedDay !== null
-    ? prayerTimings.find((d) => d.day === selectedDay) ?? null
+    ? timings.find((d) => d.day === selectedDay) ?? null
     : null;
 
   return (
@@ -27,8 +31,14 @@ const Index = () => {
         {/* Header */}
         <SadaqahHeader />
 
+        {/* Settings Panel (3 Accordions) */}
+        <SettingsPanel
+          selectedGovernorate={selectedGovernorate}
+          onGovernorateChange={setSelectedGovernorate}
+        />
+
         {/* Countdown */}
-        <CountdownTimer />
+        <CountdownTimer timings={timings} />
 
         {/* Section Title */}
         <div className="text-center">
@@ -38,7 +48,7 @@ const Index = () => {
 
         {/* Day Grid */}
         <div className="grid grid-cols-5 sm:grid-cols-6 gap-2 sm:gap-3">
-          {prayerTimings.map((day) => (
+          {timings.map((day) => (
             <DayCard
               key={day.day}
               day={day.day}

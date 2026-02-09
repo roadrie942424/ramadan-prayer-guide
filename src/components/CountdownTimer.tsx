@@ -1,24 +1,46 @@
 import { useState, useEffect } from "react";
+import { DayPrayerTimes } from "@/data/prayerData";
 
-const CountdownTimer = () => {
+interface CountdownTimerProps {
+  timings: DayPrayerTimes[];
+}
+
+const CountdownTimer = ({ timings }: CountdownTimerProps) => {
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [nextPrayer, setNextPrayer] = useState("المغرب");
 
   useEffect(() => {
     const tick = () => {
       const now = new Date();
-      // Simplified: countdown to next Maghrib (assume ~6:15 PM local)
-      const maghribHour = 18;
-      const maghribMin = 15;
+
+      // Find today's timings based on gregorian date
+      const monthDay = `${now.getMonth() + 1}/${now.getDate()}`;
+      const today = timings.find((t) => {
+        const [m, d] = t.gregorianDate.split("/");
+        return `${parseInt(m)}/${parseInt(d)}` === monthDay;
+      });
+
+      let maghribHour = 18;
+      let maghribMin = 15;
+      let fajrHour = 5;
+      let fajrMin = 0;
+
+      if (today) {
+        const [mH, mM] = today.maghrib.split(":").map(Number);
+        maghribHour = mH < 12 ? mH + 12 : mH;
+        maghribMin = mM;
+        const [fH, fM] = today.fajr.split(":").map(Number);
+        fajrHour = fH;
+        fajrMin = fM;
+      }
 
       let target = new Date(now);
       target.setHours(maghribHour, maghribMin, 0, 0);
 
       if (now >= target) {
-        // If past Maghrib, count to tomorrow's Fajr (~5:00 AM)
         target = new Date(now);
         target.setDate(target.getDate() + 1);
-        target.setHours(5, 0, 0, 0);
+        target.setHours(fajrHour, fajrMin, 0, 0);
         setNextPrayer("الفجر");
       } else {
         setNextPrayer("الإفطار");
@@ -35,7 +57,7 @@ const CountdownTimer = () => {
     tick();
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [timings]);
 
   const pad = (n: number) => n.toString().padStart(2, "0");
 
