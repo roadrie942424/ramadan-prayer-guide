@@ -15,11 +15,6 @@ export interface Governorate {
 
 export const governorates: Governorate[] = [
   {
-    id: "al-rashid",
-    name: "الرشيد",
-    offsets: { fajr: [0, 0], sunrise: [0, 0], dhuhr: [0, 0], maghrib: [0, 0] },
-  },
-  {
     id: "baghdad",
     name: "بغداد",
     offsets: { fajr: [-1, 0], sunrise: [-1, -1], dhuhr: [0, 0], maghrib: [0, 0] },
@@ -133,8 +128,7 @@ export function getGovernorateTimings(governorateId: string): DayPrayerTimes[] {
   const gov = governorates.find((g) => g.id === governorateId);
   if (!gov) return prayerTimings;
 
-  // Al Rashid is the base - no offset needed
-  if (gov.id === "al-rashid") return prayerTimings;
+  // No special base case needed anymore
 
   return prayerTimings.map((day) => {
     const fajrOffset = getOffset(gov.offsets.fajr, day.day);
