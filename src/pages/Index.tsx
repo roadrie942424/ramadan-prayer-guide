@@ -4,7 +4,7 @@ import DayCard from "@/components/DayCard";
 import PrayerModal from "@/components/PrayerModal";
 import CountdownTimer from "@/components/CountdownTimer";
 import SadaqahHeader from "@/components/SadaqahHeader";
-import SettingsPanel from "@/components/SettingsPanel";
+import HamburgerMenu from "@/components/HamburgerMenu";
 import ramadanBg from "@/assets/ramadan-bg.jpg";
 
 const Index = () => {
@@ -31,8 +31,8 @@ const Index = () => {
         {/* Header */}
         <SadaqahHeader />
 
-        {/* Settings Panel (3 Accordions) */}
-        <SettingsPanel
+        {/* Hamburger Menu */}
+        <HamburgerMenu
           selectedGovernorate={selectedGovernorate}
           onGovernorateChange={setSelectedGovernorate}
         />
