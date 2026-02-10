@@ -10,7 +10,7 @@ import ramadanBg from "@/assets/ramadan-bg.jpg";
 
 const Index = () => {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
-  const [selectedGovernorate, setSelectedGovernorate] = useState("al-rashid");
+  const [selectedGovernorate, setSelectedGovernorate] = useState("baghdad");
 
   const timings = getGovernorateTimings(selectedGovernorate);
 
@@ -38,7 +38,6 @@ const Index = () => {
           onGovernorateChange={setSelectedGovernorate}
         />
 
-
         {/* Countdown */}
         <CountdownTimer timings={timings} />
 
@@ -55,6 +54,7 @@ const Index = () => {
               key={day.day}
               day={day.day}
               hijriDate={day.hijriDate}
+              isSelected={selectedDay === day.day}
               onClick={() => setSelectedDay(day.day)}
             />
           ))}
@@ -63,7 +63,7 @@ const Index = () => {
         {/* Footer */}
         <div className="text-center pb-6">
           <p className="text-muted-foreground text-xs font-arabic">
-            إمساكية {governorates.find(g => g.id === selectedGovernorate)?.name ?? "الرشيد"} — الوقف الشيعي
+            إمساكية {governorates.find(g => g.id === selectedGovernorate)?.name ?? "بغداد"} — الوقف الشيعي
           </p>
         </div>
       </div>
