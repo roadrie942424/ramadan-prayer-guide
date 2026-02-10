@@ -5,6 +5,7 @@ import PrayerModal from "@/components/PrayerModal";
 import CountdownTimer from "@/components/CountdownTimer";
 import SadaqahHeader from "@/components/SadaqahHeader";
 import HamburgerMenu from "@/components/HamburgerMenu";
+import { governorates } from "@/data/governorateData";
 import ramadanBg from "@/assets/ramadan-bg.jpg";
 
 const Index = () => {
@@ -31,11 +32,12 @@ const Index = () => {
         {/* Header */}
         <SadaqahHeader />
 
-        {/* Hamburger Menu */}
+        {/* Hamburger Menu (fixed position) */}
         <HamburgerMenu
           selectedGovernorate={selectedGovernorate}
           onGovernorateChange={setSelectedGovernorate}
         />
+
 
         {/* Countdown */}
         <CountdownTimer timings={timings} />
@@ -61,7 +63,7 @@ const Index = () => {
         {/* Footer */}
         <div className="text-center pb-6">
           <p className="text-muted-foreground text-xs font-arabic">
-            إمساكية الرشيد — الطائفة الشيعية
+            إمساكية {governorates.find(g => g.id === selectedGovernorate)?.name ?? "الرشيد"} — الوقف الشيعي
           </p>
         </div>
       </div>
