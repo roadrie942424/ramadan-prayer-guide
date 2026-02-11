@@ -1,28 +1,67 @@
 import { useState } from "react";
-import { Menu, X, MapPin, BookOpen, ChevronDown } from "lucide-react";
+import { Menu, X, MapPin, BookOpen, ChevronDown, MapPinned } from "lucide-react";
 import { governorates } from "@/data/governorateData";
+import { sunniGovernorates } from "@/data/sunniGovernorateData";
+
+export type WaqfType = "shia" | "sunni";
 
 interface HamburgerMenuProps {
   selectedGovernorate: string;
   onGovernorateChange: (id: string) => void;
+  waqfType: WaqfType;
+  onWaqfTypeChange: (type: WaqfType) => void;
+  selectedSunniGovernorate: string;
+  onSunniGovernorateChange: (id: string) => void;
+  selectedSunniRegion: string;
+  onSunniRegionChange: (id: string) => void;
 }
 
 const HamburgerMenu = ({
   selectedGovernorate,
   onGovernorateChange,
+  waqfType,
+  onWaqfTypeChange,
+  selectedSunniGovernorate,
+  onSunniGovernorateChange,
+  selectedSunniRegion,
+  onSunniRegionChange,
 }: HamburgerMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showProvinces, setShowProvinces] = useState(false);
-  const currentGov = governorates.find((g) => g.id === selectedGovernorate);
+  const [showSunniGovernorates, setShowSunniGovernorates] = useState(false);
+  const [showSunniRegions, setShowSunniRegions] = useState(false);
+
+  const currentShiaGov = governorates.find((g) => g.id === selectedGovernorate);
+  const currentSunniGov = sunniGovernorates.find((g) => g.id === selectedSunniGovernorate);
+  const currentSunniRegion = currentSunniGov?.regions.find((r) => r.id === selectedSunniRegion);
 
   const handleGovernorateSelect = (id: string) => {
     onGovernorateChange(id);
     setShowProvinces(false);
   };
 
+  const handleSunniGovernorateSelect = (id: string) => {
+    onSunniGovernorateChange(id);
+    const gov = sunniGovernorates.find((g) => g.id === id);
+    if (gov && gov.regions.length > 0) {
+      onSunniRegionChange(gov.regions[0].id);
+    }
+    setShowSunniGovernorates(false);
+    setShowSunniRegions(true);
+  };
+
+  const handleSunniRegionSelect = (id: string) => {
+    onSunniRegionChange(id);
+    setShowSunniRegions(false);
+  };
+
+  const handleWaqfChange = (type: WaqfType) => {
+    onWaqfTypeChange(type);
+  };
+
   return (
     <>
-      {/* Hamburger Button - Top Right */}
+      {/* Hamburger Button */}
       <button
         onClick={() => setIsOpen(true)}
         className="fixed top-4 right-4 z-50 p-2.5 rounded-xl bg-card/90 gold-border backdrop-blur-sm transition-all hover:scale-105"
@@ -49,7 +88,7 @@ const HamburgerMenu = ({
         {/* Drawer Header */}
         <div className="gold-gradient p-5 flex items-center justify-between">
           <h2 className="text-primary-foreground font-display text-xl">
-            اختيار المحافظة والمذهب
+            الإعدادات
           </h2>
           <button
             onClick={() => setIsOpen(false)}
@@ -60,77 +99,183 @@ const HamburgerMenu = ({
         </div>
 
         <div className="p-5 space-y-5 overflow-y-auto h-[calc(100%-70px)]">
-          {/* Province Section */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-primary" />
-              <span className="font-arabic text-foreground text-sm">المحافظة والمنطقة</span>
-            </div>
-
-            {/* Province Dropdown */}
-            <button
-              onClick={() => setShowProvinces(!showProvinces)}
-              className="w-full flex items-center justify-between rounded-xl gold-border bg-secondary/50 px-4 py-3 font-arabic text-sm text-foreground transition-all hover:bg-secondary/70"
-            >
-              <span>اختر المحافظة</span>
-              <ChevronDown
-                className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${
-                  showProvinces ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            {showProvinces && (
-              <div className="grid grid-cols-2 gap-2 animate-fade-in">
-                {governorates.map((gov) => (
-                  <button
-                    key={gov.id}
-                    onClick={() => handleGovernorateSelect(gov.id)}
-                    className={`rounded-lg px-3 py-2.5 text-xs sm:text-sm font-arabic transition-all ${
-                      selectedGovernorate === gov.id
-                        ? "gold-gradient text-primary-foreground font-bold"
-                        : "bg-secondary/60 text-foreground hover:bg-secondary"
-                    }`}
-                  >
-                    {gov.name}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Selected Province Display */}
-            <div className="w-full rounded-xl gold-border bg-secondary/50 px-4 py-3 text-center">
-              <span className="gold-text font-bold font-arabic text-base">
-                {currentGov?.name}
-              </span>
-            </div>
-          </div>
-
-          {/* Waqf Section */}
+          {/* Waqf Type Selection */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <BookOpen className="h-5 w-5 text-primary" />
               <span className="font-arabic text-foreground text-sm">المذهب</span>
             </div>
 
-            <div className="space-y-2">
-              <button className="w-full rounded-xl gold-gradient px-4 py-3 font-arabic text-sm text-primary-foreground font-bold transition-all">
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => handleWaqfChange("shia")}
+                className={`rounded-xl px-4 py-3 font-arabic text-sm transition-all ${
+                  waqfType === "shia"
+                    ? "gold-gradient text-primary-foreground font-bold"
+                    : "bg-secondary/60 text-foreground hover:bg-secondary"
+                }`}
+              >
                 الوقف الشيعي
               </button>
               <button
-                disabled
-                className="w-full rounded-xl bg-secondary/40 px-4 py-3 font-arabic text-sm text-muted-foreground cursor-not-allowed"
+                onClick={() => handleWaqfChange("sunni")}
+                className={`rounded-xl px-4 py-3 font-arabic text-sm transition-all ${
+                  waqfType === "sunni"
+                    ? "gold-gradient text-primary-foreground font-bold"
+                    : "bg-secondary/60 text-foreground hover:bg-secondary"
+                }`}
               >
-                الوقف السني (قريباً)
+                الوقف السني
               </button>
             </div>
           </div>
+
+          {/* Shia Province Section */}
+          {waqfType === "shia" && (
+            <div className="space-y-3 animate-fade-in">
+              <div className="flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-primary" />
+                <span className="font-arabic text-foreground text-sm">المحافظة</span>
+              </div>
+
+              <button
+                onClick={() => setShowProvinces(!showProvinces)}
+                className="w-full flex items-center justify-between rounded-xl gold-border bg-secondary/50 px-4 py-3 font-arabic text-sm text-foreground transition-all hover:bg-secondary/70"
+              >
+                <span>اختر المحافظة</span>
+                <ChevronDown
+                  className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${
+                    showProvinces ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {showProvinces && (
+                <div className="grid grid-cols-2 gap-2 animate-fade-in">
+                  {governorates.map((gov) => (
+                    <button
+                      key={gov.id}
+                      onClick={() => handleGovernorateSelect(gov.id)}
+                      className={`rounded-lg px-3 py-2.5 text-xs sm:text-sm font-arabic transition-all ${
+                        selectedGovernorate === gov.id
+                          ? "gold-gradient text-primary-foreground font-bold"
+                          : "bg-secondary/60 text-foreground hover:bg-secondary"
+                      }`}
+                    >
+                      {gov.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <div className="w-full rounded-xl gold-border bg-secondary/50 px-4 py-3 text-center">
+                <span className="gold-text font-bold font-arabic text-base">
+                  {currentShiaGov?.name}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Sunni Province + Region Section */}
+          {waqfType === "sunni" && (
+            <div className="space-y-4 animate-fade-in">
+              {/* Sunni Governorate */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  <span className="font-arabic text-foreground text-sm">المحافظة</span>
+                </div>
+
+                <button
+                  onClick={() => setShowSunniGovernorates(!showSunniGovernorates)}
+                  className="w-full flex items-center justify-between rounded-xl gold-border bg-secondary/50 px-4 py-3 font-arabic text-sm text-foreground transition-all hover:bg-secondary/70"
+                >
+                  <span>اختر المحافظة</span>
+                  <ChevronDown
+                    className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${
+                      showSunniGovernorates ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {showSunniGovernorates && (
+                  <div className="grid grid-cols-2 gap-2 animate-fade-in">
+                    {sunniGovernorates.map((gov) => (
+                      <button
+                        key={gov.id}
+                        onClick={() => handleSunniGovernorateSelect(gov.id)}
+                        className={`rounded-lg px-3 py-2.5 text-xs sm:text-sm font-arabic transition-all ${
+                          selectedSunniGovernorate === gov.id
+                            ? "gold-gradient text-primary-foreground font-bold"
+                            : "bg-secondary/60 text-foreground hover:bg-secondary"
+                        }`}
+                      >
+                        {gov.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                <div className="w-full rounded-xl gold-border bg-secondary/50 px-4 py-3 text-center">
+                  <span className="gold-text font-bold font-arabic text-base">
+                    {currentSunniGov?.name}
+                  </span>
+                </div>
+              </div>
+
+              {/* Sunni Region */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <MapPinned className="h-5 w-5 text-primary" />
+                  <span className="font-arabic text-foreground text-sm">المنطقة</span>
+                </div>
+
+                <button
+                  onClick={() => setShowSunniRegions(!showSunniRegions)}
+                  className="w-full flex items-center justify-between rounded-xl gold-border bg-secondary/50 px-4 py-3 font-arabic text-sm text-foreground transition-all hover:bg-secondary/70"
+                >
+                  <span>اختر المنطقة</span>
+                  <ChevronDown
+                    className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${
+                      showSunniRegions ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {showSunniRegions && currentSunniGov && (
+                  <div className="grid grid-cols-2 gap-2 animate-fade-in max-h-60 overflow-y-auto">
+                    {currentSunniGov.regions.map((region) => (
+                      <button
+                        key={region.id}
+                        onClick={() => handleSunniRegionSelect(region.id)}
+                        className={`rounded-lg px-3 py-2.5 text-xs sm:text-sm font-arabic transition-all ${
+                          selectedSunniRegion === region.id
+                            ? "gold-gradient text-primary-foreground font-bold"
+                            : "bg-secondary/60 text-foreground hover:bg-secondary"
+                        }`}
+                      >
+                        {region.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                <div className="w-full rounded-xl gold-border bg-secondary/50 px-4 py-3 text-center">
+                  <span className="gold-text font-bold font-arabic text-base">
+                    {currentSunniRegion?.name}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Info */}
           <div className="rounded-xl gold-border bg-secondary/30 p-4 space-y-2">
             <p className="text-muted-foreground text-xs font-arabic leading-relaxed">
               إمساكية شهر رمضان المبارك لعام ١٤٤٦ هجرية.
-              الأوقات محسوبة حسب الوقف الشيعي لجميع المحافظات العراقية.
+              {waqfType === "shia"
+                ? " الأوقات محسوبة حسب الوقف الشيعي لجميع المحافظات العراقية."
+                : " الأوقات محسوبة حسب الوقف السني للمحافظات والمناطق المتاحة."}
             </p>
           </div>
         </div>
