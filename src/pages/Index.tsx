@@ -1,22 +1,40 @@
 import { useState } from "react";
 import { getGovernorateTimings } from "@/data/governorateData";
+import { getSunniRegionTimings, sunniGovernorates } from "@/data/sunniGovernorateData";
 import DayCard from "@/components/DayCard";
 import PrayerModal from "@/components/PrayerModal";
 import CountdownTimer from "@/components/CountdownTimer";
 import SadaqahHeader from "@/components/SadaqahHeader";
-import HamburgerMenu from "@/components/HamburgerMenu";
+import HamburgerMenu, { WaqfType } from "@/components/HamburgerMenu";
 import { governorates } from "@/data/governorateData";
 import ramadanBg from "@/assets/ramadan-bg.jpg";
 
 const Index = () => {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedGovernorate, setSelectedGovernorate] = useState("baghdad");
+  const [waqfType, setWaqfType] = useState<WaqfType>("shia");
+  const [selectedSunniGovernorate, setSelectedSunniGovernorate] = useState("erbil");
+  const [selectedSunniRegion, setSelectedSunniRegion] = useState("erbil-city");
 
-  const timings = getGovernorateTimings(selectedGovernorate);
+  const timings =
+    waqfType === "shia"
+      ? getGovernorateTimings(selectedGovernorate)
+      : getSunniRegionTimings(selectedSunniGovernorate, selectedSunniRegion);
 
   const selectedData = selectedDay !== null
     ? timings.find((d) => d.day === selectedDay) ?? null
     : null;
+
+  // Footer label
+  const getFooterLabel = () => {
+    if (waqfType === "shia") {
+      const govName = governorates.find((g) => g.id === selectedGovernorate)?.name ?? "بغداد";
+      return `إمساكية ${govName} — الوقف الشيعي`;
+    }
+    const gov = sunniGovernorates.find((g) => g.id === selectedSunniGovernorate);
+    const region = gov?.regions.find((r) => r.id === selectedSunniRegion);
+    return `إمساكية ${region?.name ?? gov?.name ?? "أربيل"} — الوقف السني`;
+  };
 
   return (
     <div className="min-h-screen relative" dir="rtl">
@@ -32,10 +50,16 @@ const Index = () => {
         {/* Header */}
         <SadaqahHeader />
 
-        {/* Hamburger Menu (fixed position) */}
+        {/* Hamburger Menu */}
         <HamburgerMenu
           selectedGovernorate={selectedGovernorate}
           onGovernorateChange={setSelectedGovernorate}
+          waqfType={waqfType}
+          onWaqfTypeChange={setWaqfType}
+          selectedSunniGovernorate={selectedSunniGovernorate}
+          onSunniGovernorateChange={setSelectedSunniGovernorate}
+          selectedSunniRegion={selectedSunniRegion}
+          onSunniRegionChange={setSelectedSunniRegion}
         />
 
         {/* Countdown */}
@@ -63,7 +87,7 @@ const Index = () => {
         {/* Footer */}
         <div className="text-center pb-6">
           <p className="text-muted-foreground text-xs font-arabic">
-            إمساكية {governorates.find(g => g.id === selectedGovernorate)?.name ?? "بغداد"} — الوقف الشيعي
+            {getFooterLabel()}
           </p>
         </div>
       </div>
