@@ -67,7 +67,7 @@ const HamburgerMenu = ({
         className="fixed top-4 right-4 z-50 p-2.5 rounded-xl bg-card/90 gold-border backdrop-blur-sm transition-all hover:scale-105"
         aria-label="فتح القائمة"
       >
-        <Menu className="h-6 w-6 text-primary" />
+        <Menu className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
       </button>
 
       {/* Overlay */}
@@ -80,36 +80,36 @@ const HamburgerMenu = ({
 
       {/* Side Drawer */}
       <div
-        className={`fixed top-0 right-0 z-50 h-full w-[85%] max-w-sm bg-card border-l border-border shadow-2xl transition-transform duration-300 ease-out ${
+        className={`fixed top-0 right-0 z-50 h-full w-[88%] max-w-[340px] bg-card border-l border-border shadow-2xl transition-transform duration-300 ease-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
         dir="rtl"
       >
         {/* Drawer Header */}
-        <div className="gold-gradient p-5 flex items-center justify-between">
-          <h2 className="text-primary-foreground font-display text-xl">
+        <div className="gold-gradient p-4 sm:p-5 flex items-center justify-between">
+          <h2 className="text-primary-foreground font-display text-lg sm:text-xl">
             الإعدادات
           </h2>
           <button
             onClick={() => setIsOpen(false)}
             className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
           >
-            <X size={22} />
+            <X size={20} />
           </button>
         </div>
 
-        <div className="p-5 space-y-5 overflow-y-auto h-[calc(100%-70px)]">
+        <div className="p-4 sm:p-5 space-y-4 overflow-y-auto h-[calc(100%-56px)] sm:h-[calc(100%-68px)]">
           {/* Waqf Type Selection */}
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <div className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-primary" />
-              <span className="font-arabic text-foreground text-sm">المذهب</span>
+              <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              <span className="font-arabic text-foreground text-xs sm:text-sm">المذهب</span>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => handleWaqfChange("shia")}
-                className={`rounded-xl px-4 py-3 font-arabic text-sm transition-all ${
+                className={`rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 font-arabic text-xs sm:text-sm transition-all ${
                   waqfType === "shia"
                     ? "gold-gradient text-primary-foreground font-bold"
                     : "bg-secondary/60 text-foreground hover:bg-secondary"
@@ -119,7 +119,7 @@ const HamburgerMenu = ({
               </button>
               <button
                 onClick={() => handleWaqfChange("sunni")}
-                className={`rounded-xl px-4 py-3 font-arabic text-sm transition-all ${
+                className={`rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 font-arabic text-xs sm:text-sm transition-all ${
                   waqfType === "sunni"
                     ? "gold-gradient text-primary-foreground font-bold"
                     : "bg-secondary/60 text-foreground hover:bg-secondary"
@@ -132,15 +132,15 @@ const HamburgerMenu = ({
 
           {/* Shia Province Section */}
           {waqfType === "shia" && (
-            <div className="space-y-3 animate-fade-in">
+            <div className="space-y-2.5 animate-fade-in">
               <div className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-primary" />
-                <span className="font-arabic text-foreground text-sm">المحافظة</span>
+                <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                <span className="font-arabic text-foreground text-xs sm:text-sm">المحافظة</span>
               </div>
 
               <button
                 onClick={() => setShowProvinces(!showProvinces)}
-                className="w-full flex items-center justify-between rounded-xl gold-border bg-secondary/50 px-4 py-3 font-arabic text-sm text-foreground transition-all hover:bg-secondary/70"
+                className="w-full flex items-center justify-between rounded-xl gold-border bg-secondary/50 px-3 py-2.5 sm:px-4 sm:py-3 font-arabic text-xs sm:text-sm text-foreground transition-all hover:bg-secondary/70"
               >
                 <span>اختر المحافظة</span>
                 <ChevronDown
@@ -151,12 +151,12 @@ const HamburgerMenu = ({
               </button>
 
               {showProvinces && (
-                <div className="grid grid-cols-2 gap-2 animate-fade-in">
+                <div className="grid grid-cols-2 gap-1.5 sm:gap-2 animate-fade-in max-h-52 overflow-y-auto">
                   {governorates.map((gov) => (
                     <button
                       key={gov.id}
                       onClick={() => handleGovernorateSelect(gov.id)}
-                      className={`rounded-lg px-3 py-2.5 text-xs sm:text-sm font-arabic transition-all ${
+                      className={`rounded-lg px-2 py-2 sm:px-3 sm:py-2.5 text-[11px] sm:text-sm font-arabic transition-all ${
                         selectedGovernorate === gov.id
                           ? "gold-gradient text-primary-foreground font-bold"
                           : "bg-secondary/60 text-foreground hover:bg-secondary"
@@ -168,8 +168,8 @@ const HamburgerMenu = ({
                 </div>
               )}
 
-              <div className="w-full rounded-xl gold-border bg-secondary/50 px-4 py-3 text-center">
-                <span className="gold-text font-bold font-arabic text-base">
+              <div className="w-full rounded-xl gold-border bg-secondary/50 px-3 py-2.5 sm:px-4 sm:py-3 text-center">
+                <span className="gold-text font-bold font-arabic text-sm sm:text-base">
                   {currentShiaGov?.name}
                 </span>
               </div>
@@ -178,17 +178,17 @@ const HamburgerMenu = ({
 
           {/* Sunni Province + Region Section */}
           {waqfType === "sunni" && (
-            <div className="space-y-4 animate-fade-in">
+            <div className="space-y-3 animate-fade-in">
               {/* Sunni Governorate */}
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 <div className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-primary" />
-                  <span className="font-arabic text-foreground text-sm">المحافظة</span>
+                  <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                  <span className="font-arabic text-foreground text-xs sm:text-sm">المحافظة</span>
                 </div>
 
                 <button
                   onClick={() => setShowSunniGovernorates(!showSunniGovernorates)}
-                  className="w-full flex items-center justify-between rounded-xl gold-border bg-secondary/50 px-4 py-3 font-arabic text-sm text-foreground transition-all hover:bg-secondary/70"
+                  className="w-full flex items-center justify-between rounded-xl gold-border bg-secondary/50 px-3 py-2.5 sm:px-4 sm:py-3 font-arabic text-xs sm:text-sm text-foreground transition-all hover:bg-secondary/70"
                 >
                   <span>اختر المحافظة</span>
                   <ChevronDown
@@ -199,12 +199,12 @@ const HamburgerMenu = ({
                 </button>
 
                 {showSunniGovernorates && (
-                  <div className="grid grid-cols-2 gap-2 animate-fade-in">
+                  <div className="grid grid-cols-2 gap-1.5 sm:gap-2 animate-fade-in max-h-48 overflow-y-auto">
                     {sunniGovernorates.map((gov) => (
                       <button
                         key={gov.id}
                         onClick={() => handleSunniGovernorateSelect(gov.id)}
-                        className={`rounded-lg px-3 py-2.5 text-xs sm:text-sm font-arabic transition-all ${
+                        className={`rounded-lg px-2 py-2 sm:px-3 sm:py-2.5 text-[11px] sm:text-sm font-arabic transition-all ${
                           selectedSunniGovernorate === gov.id
                             ? "gold-gradient text-primary-foreground font-bold"
                             : "bg-secondary/60 text-foreground hover:bg-secondary"
@@ -216,23 +216,23 @@ const HamburgerMenu = ({
                   </div>
                 )}
 
-                <div className="w-full rounded-xl gold-border bg-secondary/50 px-4 py-3 text-center">
-                  <span className="gold-text font-bold font-arabic text-base">
+                <div className="w-full rounded-xl gold-border bg-secondary/50 px-3 py-2.5 sm:px-4 sm:py-3 text-center">
+                  <span className="gold-text font-bold font-arabic text-sm sm:text-base">
                     {currentSunniGov?.name}
                   </span>
                 </div>
               </div>
 
               {/* Sunni Region */}
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 <div className="flex items-center gap-2">
-                  <MapPinned className="h-5 w-5 text-primary" />
-                  <span className="font-arabic text-foreground text-sm">المنطقة</span>
+                  <MapPinned className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                  <span className="font-arabic text-foreground text-xs sm:text-sm">المنطقة</span>
                 </div>
 
                 <button
                   onClick={() => setShowSunniRegions(!showSunniRegions)}
-                  className="w-full flex items-center justify-between rounded-xl gold-border bg-secondary/50 px-4 py-3 font-arabic text-sm text-foreground transition-all hover:bg-secondary/70"
+                  className="w-full flex items-center justify-between rounded-xl gold-border bg-secondary/50 px-3 py-2.5 sm:px-4 sm:py-3 font-arabic text-xs sm:text-sm text-foreground transition-all hover:bg-secondary/70"
                 >
                   <span>اختر المنطقة</span>
                   <ChevronDown
@@ -243,12 +243,12 @@ const HamburgerMenu = ({
                 </button>
 
                 {showSunniRegions && currentSunniGov && (
-                  <div className="grid grid-cols-2 gap-2 animate-fade-in max-h-60 overflow-y-auto">
+                  <div className="grid grid-cols-2 gap-1.5 sm:gap-2 animate-fade-in max-h-48 overflow-y-auto">
                     {currentSunniGov.regions.map((region) => (
                       <button
                         key={region.id}
                         onClick={() => handleSunniRegionSelect(region.id)}
-                        className={`rounded-lg px-3 py-2.5 text-xs sm:text-sm font-arabic transition-all ${
+                        className={`rounded-lg px-2 py-2 sm:px-3 sm:py-2.5 text-[11px] sm:text-sm font-arabic transition-all ${
                           selectedSunniRegion === region.id
                             ? "gold-gradient text-primary-foreground font-bold"
                             : "bg-secondary/60 text-foreground hover:bg-secondary"
@@ -260,8 +260,8 @@ const HamburgerMenu = ({
                   </div>
                 )}
 
-                <div className="w-full rounded-xl gold-border bg-secondary/50 px-4 py-3 text-center">
-                  <span className="gold-text font-bold font-arabic text-base">
+                <div className="w-full rounded-xl gold-border bg-secondary/50 px-3 py-2.5 sm:px-4 sm:py-3 text-center">
+                  <span className="gold-text font-bold font-arabic text-sm sm:text-base">
                     {currentSunniRegion?.name}
                   </span>
                 </div>
@@ -270,8 +270,8 @@ const HamburgerMenu = ({
           )}
 
           {/* Info */}
-          <div className="rounded-xl gold-border bg-secondary/30 p-4 space-y-2">
-            <p className="text-muted-foreground text-xs font-arabic leading-relaxed">
+          <div className="rounded-xl gold-border bg-secondary/30 p-3 sm:p-4 space-y-2">
+            <p className="text-muted-foreground text-[10px] sm:text-xs font-arabic leading-relaxed">
               إمساكية شهر رمضان المبارك لعام ١٤٤٦ هجرية.
               {waqfType === "shia"
                 ? " الأوقات محسوبة حسب الوقف الشيعي لجميع المحافظات العراقية."

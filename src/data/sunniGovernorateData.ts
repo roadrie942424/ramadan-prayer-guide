@@ -21,7 +21,7 @@ export interface SunniGovernorate {
 /**
  * Sunni Waqf governorates and regions
  * Offsets are in minutes relative to Erbil base times
- * Extracted from SONA1.pdf
+ * Extracted from SONA1.pdf and slna2.pdf
  */
 export const sunniGovernorates: SunniGovernorate[] = [
   {
@@ -97,6 +97,107 @@ export const sunniGovernorates: SunniGovernorate[] = [
       { id: "qala-diza", name: "قلعة دزه", offsets: { fajr: -4, sunrise: -3, dhuhr: -2, maghrib: -3 } },
       { id: "kalar", name: "كلار", offsets: { fajr: -5, sunrise: -5, dhuhr: -3, maghrib: -3 } },
       { id: "koya", name: "كويه", offsets: { fajr: 0, sunrise: 0, dhuhr: 0, maghrib: 0 } },
+    ],
+  },
+  {
+    id: "muthanna",
+    name: "المثنى",
+    regions: [
+      { id: "samawa", name: "السماوة", offsets: { fajr: -11, sunrise: -16, dhuhr: -8, maghrib: -2 } },
+      { id: "basiya", name: "البصية", offsets: { fajr: -14, sunrise: -16, dhuhr: -8, maghrib: -3 } },
+      { id: "khidr", name: "الخضر", offsets: { fajr: -12, sunrise: -17, dhuhr: -9, maghrib: -3 } },
+      { id: "rumaytha", name: "الرميثة", offsets: { fajr: -10, sunrise: -16, dhuhr: -8, maghrib: -2 } },
+      { id: "salman", name: "السلمان", offsets: { fajr: -8, sunrise: -15, dhuhr: -5, maghrib: 3 } },
+    ],
+  },
+  {
+    id: "najaf",
+    name: "النجف",
+    regions: [
+      { id: "najaf-city", name: "النجف", offsets: { fajr: -7, sunrise: -12, dhuhr: -4, maghrib: 2 } },
+      { id: "hindiya", name: "الهندية (طويريج)", offsets: { fajr: -6, sunrise: -11, dhuhr: -4, maghrib: 1 } },
+    ],
+  },
+  {
+    id: "babel",
+    name: "بابل",
+    regions: [
+      { id: "hilla", name: "الحلة", offsets: { fajr: -7, sunrise: -12, dhuhr: -5, maghrib: 1 } },
+      { id: "kifl", name: "الكفل", offsets: { fajr: -7, sunrise: -12, dhuhr: -5, maghrib: 1 } },
+      { id: "musayyib", name: "المسيب", offsets: { fajr: -7, sunrise: -11, dhuhr: -4, maghrib: 1 } },
+      { id: "hashimiya", name: "الهاشمية", offsets: { fajr: -8, sunrise: -13, dhuhr: -6, maghrib: 0 } },
+    ],
+  },
+  {
+    id: "baghdad",
+    name: "بغداد",
+    regions: [
+      { id: "baghdad-center", name: "مركز بغداد", offsets: { fajr: -7, sunrise: -11, dhuhr: -5, maghrib: 0 } },
+      { id: "abu-ghraib", name: "ابو غريب", offsets: { fajr: -6, sunrise: -10, dhuhr: -4, maghrib: 1 } },
+      { id: "tarmiya", name: "الطارمية", offsets: { fajr: -7, sunrise: -11, dhuhr: -5, maghrib: 0 } },
+      { id: "mahmoudiya", name: "المحمودية", offsets: { fajr: -7, sunrise: -11, dhuhr: -5, maghrib: 0 } },
+      { id: "madain", name: "المدائن", offsets: { fajr: -8, sunrise: -11, dhuhr: -5, maghrib: -1 } },
+    ],
+  },
+  {
+    id: "duhok",
+    name: "دهوك",
+    regions: [
+      { id: "duhok-city", name: "دهوك", offsets: { fajr: -2, sunrise: 3, dhuhr: 4, maghrib: 4 } },
+      { id: "amadiya", name: "العمادية", offsets: { fajr: -4, sunrise: 1, dhuhr: 2, maghrib: 2 } },
+      { id: "zakho", name: "زاخو", offsets: { fajr: -1, sunrise: 4, dhuhr: 5, maghrib: 5 } },
+      { id: "aqra", name: "عقرة", offsets: { fajr: 0, sunrise: 1, dhuhr: -1, maghrib: 1 } },
+    ],
+  },
+  {
+    id: "diyala",
+    name: "ديالى",
+    regions: [
+      { id: "baquba", name: "بعقوبة", offsets: { fajr: -8, sunrise: -11, dhuhr: -6, maghrib: -1 } },
+      { id: "khalis", name: "الخالص", offsets: { fajr: -7, sunrise: -11, dhuhr: -5, maghrib: -1 } },
+      { id: "azim", name: "العظيم", offsets: { fajr: -7, sunrise: -10, dhuhr: -5, maghrib: -1 } },
+      { id: "muqdadiya", name: "المقدادية", offsets: { fajr: -9, sunrise: -13, dhuhr: -7, maghrib: -3 } },
+      { id: "jalawla", name: "جلولاء", offsets: { fajr: -10, sunrise: -13, dhuhr: -8, maghrib: -4 } },
+      { id: "khanaqin", name: "خانقين", offsets: { fajr: -10, sunrise: -15, dhuhr: -9, maghrib: -4 } },
+      { id: "kifri", name: "كفري", offsets: { fajr: -9, sunrise: -13, dhuhr: -7, maghrib: -2 } },
+      { id: "mandali", name: "مندلي", offsets: { fajr: -11, sunrise: -16, dhuhr: -9, maghrib: -4 } },
+    ],
+  },
+  {
+    id: "dhiqar",
+    name: "ذي قار",
+    regions: [
+      { id: "nasiriya", name: "الناصرية", offsets: { fajr: -15, sunrise: -20, dhuhr: -12, maghrib: -6 } },
+      { id: "shatra", name: "الشطرة", offsets: { fajr: -14, sunrise: -19, dhuhr: -12, maghrib: -6 } },
+      { id: "suq-shuyukh", name: "سوق الشيوخ", offsets: { fajr: -16, sunrise: -22, dhuhr: -13, maghrib: -6 } },
+      { id: "nahiyat-fajr", name: "ناحية الفجر", offsets: { fajr: -13, sunrise: -18, dhuhr: -11, maghrib: -5 } },
+    ],
+  },
+  {
+    id: "salahuddin",
+    name: "صلاح الدين",
+    regions: [
+      { id: "tikrit", name: "تكريت", offsets: { fajr: -4, sunrise: -7, dhuhr: -2, maghrib: 2 } },
+      { id: "samarra", name: "سامراء", offsets: { fajr: -5, sunrise: -8, dhuhr: -3, maghrib: 2 } },
+      { id: "dujail", name: "الدجيل", offsets: { fajr: -6, sunrise: -10, dhuhr: -4, maghrib: 0 } },
+      { id: "sharqat", name: "الشرقاط", offsets: { fajr: -2, sunrise: -5, dhuhr: 0, maghrib: 3 } },
+      { id: "tuz", name: "الطوز", offsets: { fajr: -7, sunrise: -11, dhuhr: -6, maghrib: -1 } },
+      { id: "balad", name: "بلد والضلوعية", offsets: { fajr: -6, sunrise: -9, dhuhr: -4, maghrib: 0 } },
+      { id: "baiji", name: "بيجي", offsets: { fajr: -3, sunrise: -6, dhuhr: -1, maghrib: 3 } },
+    ],
+  },
+  {
+    id: "karbala",
+    name: "كربلاء",
+    regions: [
+      { id: "karbala-city", name: "كربلاء", offsets: { fajr: -5, sunrise: -10, dhuhr: -3, maghrib: 2 } },
+    ],
+  },
+  {
+    id: "kirkuk",
+    name: "كركوك",
+    regions: [
+      { id: "kirkuk-city", name: "كركوك", offsets: { fajr: -2, sunrise: -2, dhuhr: -1, maghrib: -1 } },
     ],
   },
 ];
