@@ -2,7 +2,7 @@ import ramadanIcon from "@/assets/ramadan-icon.jpg";
 
 const SadaqahHeader = () => {
   return (
-    <div className="text-center space-y-4" dir="rtl">
+    <div className="text-center space-y-4 animate-fade-in" dir="rtl">
       {/* Icon */}
       <div className="mx-auto w-20 h-20 sm:w-24 sm:h-24 rounded-full gold-border overflow-hidden animate-float gold-glow">
         <img

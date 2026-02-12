@@ -13,8 +13,8 @@ const Index = () => {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedGovernorate, setSelectedGovernorate] = useState("baghdad");
   const [waqfType, setWaqfType] = useState<WaqfType>("shia");
-  const [selectedSunniGovernorate, setSelectedSunniGovernorate] = useState("erbil");
-  const [selectedSunniRegion, setSelectedSunniRegion] = useState("erbil-city");
+  const [selectedSunniGovernorate, setSelectedSunniGovernorate] = useState("baghdad");
+  const [selectedSunniRegion, setSelectedSunniRegion] = useState("baghdad-center");
 
   const timings =
     waqfType === "shia"
