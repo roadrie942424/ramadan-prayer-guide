@@ -80,25 +80,25 @@ const HamburgerMenu = ({
 
       {/* Side Drawer */}
       <div
-        className={`fixed top-0 right-0 z-50 h-full w-[88%] max-w-[340px] bg-card border-l border-border shadow-2xl transition-transform duration-300 ease-out ${
+        className={`fixed top-0 right-0 z-50 h-full w-[85%] max-w-[320px] bg-card border-l border-border shadow-2xl overflow-hidden transition-transform duration-300 ease-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
         dir="rtl"
       >
         {/* Drawer Header */}
-        <div className="gold-gradient p-4 sm:p-5 flex items-center justify-between">
-          <h2 className="text-primary-foreground font-display text-lg sm:text-xl">
+        <div className="gold-gradient p-3.5 sm:p-4 flex items-center justify-between">
+          <h2 className="text-primary-foreground font-display text-base sm:text-lg">
             الإعدادات
           </h2>
           <button
             onClick={() => setIsOpen(false)}
-            className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+            className="text-primary-foreground/80 hover:text-primary-foreground transition-colors p-1 rounded-lg hover:bg-primary-foreground/10"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        <div className="p-4 sm:p-5 space-y-4 overflow-y-auto h-[calc(100%-56px)] sm:h-[calc(100%-68px)]">
+        <div className="p-3 sm:p-4 space-y-3 overflow-y-auto h-[calc(100%-52px)] sm:h-[calc(100%-56px)]">
           {/* Waqf Type Selection */}
           <div className="space-y-2.5">
             <div className="flex items-center gap-2">

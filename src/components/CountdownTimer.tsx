@@ -62,7 +62,7 @@ const CountdownTimer = ({ timings }: CountdownTimerProps) => {
   const pad = (n: number) => n.toString().padStart(2, "0");
 
   return (
-    <div className="text-center">
+    <div className="text-center animate-fade-in" style={{ animationDelay: '0.1s' }}>
       <p className="text-muted-foreground text-sm font-arabic mb-2">
         الوقت المتبقي حتى {nextPrayer}
       </p>

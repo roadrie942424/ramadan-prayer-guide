@@ -21,9 +21,20 @@ export interface SunniGovernorate {
 /**
  * Sunni Waqf governorates and regions
  * Offsets are in minutes relative to Erbil base times
- * Extracted from SONA1.pdf and slna2.pdf
+ * Baghdad is listed first, then alphabetical Arabic order
  */
 export const sunniGovernorates: SunniGovernorate[] = [
+  {
+    id: "baghdad",
+    name: "بغداد",
+    regions: [
+      { id: "baghdad-center", name: "مركز بغداد", offsets: { fajr: -7, sunrise: -11, dhuhr: -5, maghrib: 0 } },
+      { id: "abu-ghraib", name: "ابو غريب", offsets: { fajr: -6, sunrise: -10, dhuhr: -4, maghrib: 1 } },
+      { id: "tarmiya", name: "الطارمية", offsets: { fajr: -7, sunrise: -11, dhuhr: -5, maghrib: 0 } },
+      { id: "mahmoudiya", name: "المحمودية", offsets: { fajr: -7, sunrise: -11, dhuhr: -5, maghrib: 0 } },
+      { id: "madain", name: "المدائن", offsets: { fajr: -8, sunrise: -11, dhuhr: -5, maghrib: -1 } },
+    ],
+  },
   {
     id: "erbil",
     name: "أربيل",
@@ -126,17 +137,6 @@ export const sunniGovernorates: SunniGovernorate[] = [
       { id: "kifl", name: "الكفل", offsets: { fajr: -7, sunrise: -12, dhuhr: -5, maghrib: 1 } },
       { id: "musayyib", name: "المسيب", offsets: { fajr: -7, sunrise: -11, dhuhr: -4, maghrib: 1 } },
       { id: "hashimiya", name: "الهاشمية", offsets: { fajr: -8, sunrise: -13, dhuhr: -6, maghrib: 0 } },
-    ],
-  },
-  {
-    id: "baghdad",
-    name: "بغداد",
-    regions: [
-      { id: "baghdad-center", name: "مركز بغداد", offsets: { fajr: -7, sunrise: -11, dhuhr: -5, maghrib: 0 } },
-      { id: "abu-ghraib", name: "ابو غريب", offsets: { fajr: -6, sunrise: -10, dhuhr: -4, maghrib: 1 } },
-      { id: "tarmiya", name: "الطارمية", offsets: { fajr: -7, sunrise: -11, dhuhr: -5, maghrib: 0 } },
-      { id: "mahmoudiya", name: "المحمودية", offsets: { fajr: -7, sunrise: -11, dhuhr: -5, maghrib: 0 } },
-      { id: "madain", name: "المدائن", offsets: { fajr: -8, sunrise: -11, dhuhr: -5, maghrib: -1 } },
     ],
   },
   {
