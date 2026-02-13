@@ -28,12 +28,6 @@ const PrayerModal = ({ open, onClose, data }: PrayerModalProps) => {
         <DialogContent className="bg-background/85 backdrop-blur-2xl border border-primary/20 max-w-md p-0 overflow-hidden rounded-2xl shadow-[0_0_80px_hsl(45_80%_55%/0.2),0_25px_50px_-12px_rgba(0,0,0,0.6)]">
         {/* Header */}
         <div className="relative p-5 sm:p-6 text-center border-b border-primary/10">
-          <button
-            onClick={onClose}
-            className="absolute top-4 left-4 p-1.5 rounded-full bg-secondary/50 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
-          >
-            <X size={18} />
-          </button>
           <DialogHeader>
             <DialogTitle className="gold-text text-3xl sm:text-4xl font-display">
               {toArabicNumeral(data.day)} رمضان
