@@ -20,6 +20,12 @@ const SadaqahHeader = () => {
         <p className="text-muted-foreground text-sm sm:text-base mt-2 font-arabic">
           إمساكية شهر رمضان المبارك ١٤٤٦ هـ
         </p>
+        <p className="text-primary/80 text-xs sm:text-sm mt-1 font-arabic">
+          صدقة جارية عن روح المرحوم
+        </p>
+        <p className="gold-text text-base sm:text-lg font-display font-bold mt-0.5">
+          عبد العزيز حسن نهيب الساعدي
+        </p>
       </div>
 
       {/* Memorial Section */}

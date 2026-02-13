@@ -25,7 +25,7 @@ const PrayerModal = ({ open, onClose, data }: PrayerModalProps) => {
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="bg-background/80 backdrop-blur-xl border border-primary/20 max-w-md mx-auto p-0 overflow-hidden rounded-2xl shadow-[0_0_60px_hsl(45_80%_55%/0.15),0_25px_50px_-12px_rgba(0,0,0,0.5)]">
+      <DialogContent className="bg-background/85 backdrop-blur-2xl border border-primary/20 max-w-md mx-auto p-0 overflow-hidden rounded-2xl shadow-[0_0_80px_hsl(45_80%_55%/0.2),0_25px_50px_-12px_rgba(0,0,0,0.6)] data-[state=open]:animate-enter data-[state=closed]:animate-exit">
         {/* Header */}
         <div className="relative p-5 sm:p-6 text-center border-b border-primary/10">
           <button

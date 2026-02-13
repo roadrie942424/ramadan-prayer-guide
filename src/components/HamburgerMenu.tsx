@@ -75,13 +75,14 @@ const HamburgerMenu = ({
         <div
           className="fixed inset-0 z-50 bg-background/60 backdrop-blur-sm transition-opacity"
           onClick={() => setIsOpen(false)}
+          onTouchMove={(e) => e.stopPropagation()}
         />
       )}
 
       {/* Side Drawer */}
       <div
-        className={`fixed top-0 right-0 z-50 h-full w-[85%] max-w-[320px] bg-card border-l border-border shadow-2xl overflow-hidden transition-transform duration-300 ease-out ${
-          isOpen ? "translate-x-0" : "translate-x-full"
+        className={`fixed top-0 right-0 z-50 h-full w-[82%] max-w-[320px] bg-card/95 backdrop-blur-md border-l border-primary/20 shadow-[0_0_60px_hsl(45_80%_55%/0.1)] overflow-hidden transition-all duration-400 ease-out ${
+          isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
         }`}
         dir="rtl"
       >
@@ -268,6 +269,16 @@ const HamburgerMenu = ({
               </div>
             </div>
           )}
+
+          {/* Iftar Dua */}
+          <div className="rounded-xl gold-border bg-primary/5 p-3 sm:p-4 space-y-2">
+            <h3 className="gold-text font-display text-sm sm:text-base text-center font-bold">🤲 دعاء الإفطار</h3>
+            <p className="text-foreground/90 text-[11px] sm:text-xs font-arabic leading-[1.8] text-center">
+              اللَّهُمَّ لَكَ صُمْتُ، وَعَلَىٰ رِزْقِكَ أَفْطَرْتُ، وَلِصَوْمِ غَدٍ نَوَيْتُ.
+              <br />
+              ذَهَبَ الظَّمَأُ، وَابْتَلَّتِ العُرُوقُ، وَثَبَتَ الأَجْرُ إِنْ شَاءَ اللَّهُ.
+            </p>
+          </div>
 
           {/* Info */}
           <div className="rounded-xl gold-border bg-secondary/30 p-3 sm:p-4 space-y-2">
