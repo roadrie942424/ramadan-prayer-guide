@@ -271,11 +271,12 @@ const HamburgerMenu = ({
           )}
 
           {/* Iftar Dua */}
-          <div className="rounded-xl gold-border bg-primary/5 p-3 sm:p-4 space-y-2">
-            <h3 className="gold-text font-display text-sm sm:text-base text-center font-bold">🤲 دعاء الإفطار</h3>
-            <p className="text-foreground/90 text-[11px] sm:text-xs font-arabic leading-[1.8] text-center">
+          <div className="rounded-xl gold-border bg-primary/5 p-4 sm:p-5 space-y-3">
+            <h3 className="gold-text font-display text-base sm:text-lg text-center font-bold">🤲 دعاء الإفطار</h3>
+            <p className="text-foreground text-sm sm:text-base font-arabic leading-[2] text-center">
               اللَّهُمَّ لَكَ صُمْتُ، وَعَلَىٰ رِزْقِكَ أَفْطَرْتُ، وَلِصَوْمِ غَدٍ نَوَيْتُ.
-              <br />
+            </p>
+            <p className="text-foreground text-sm sm:text-base font-arabic leading-[2] text-center">
               ذَهَبَ الظَّمَأُ، وَابْتَلَّتِ العُرُوقُ، وَثَبَتَ الأَجْرُ إِنْ شَاءَ اللَّهُ.
             </p>
           </div>
