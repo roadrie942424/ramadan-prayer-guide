@@ -81,67 +81,62 @@ const HamburgerMenu = ({
 
       {/* Side Drawer */}
       <div
-        className={`fixed top-0 right-0 z-50 h-full w-[82%] max-w-[320px] bg-card/95 backdrop-blur-md border-l border-primary/20 shadow-[0_0_60px_hsl(45_80%_55%/0.1)] overflow-hidden transition-all duration-400 ease-out ${
+        className={`fixed top-0 right-0 z-50 h-full w-[82%] max-w-[340px] bg-card/95 backdrop-blur-md border-l border-primary/20 shadow-[0_0_60px_hsl(45_80%_55%/0.1)] overflow-hidden transition-all duration-400 ease-out ${
           isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
         }`}
         dir="rtl"
       >
         {/* Drawer Header */}
-        <div className="gold-gradient p-3.5 sm:p-4 flex items-center justify-between">
-          <h2 className="text-primary-foreground font-display text-base sm:text-lg">
+        <div className="gold-gradient px-5 py-4 flex items-center justify-between">
+          <h2 className="text-primary-foreground font-display text-lg">
             الإعدادات
           </h2>
           <button
             onClick={() => setIsOpen(false)}
-            className="text-primary-foreground/80 hover:text-primary-foreground transition-colors p-1 rounded-lg hover:bg-primary-foreground/10"
+            className="text-primary-foreground/80 hover:text-primary-foreground transition-colors p-1.5 rounded-lg hover:bg-primary-foreground/10"
           >
-            <X size={18} />
+            <X size={20} />
           </button>
         </div>
 
-        <div className="p-3 sm:p-4 space-y-3 overflow-y-auto h-[calc(100%-52px)] sm:h-[calc(100%-56px)]">
+        <div className="px-5 py-4 space-y-5 overflow-y-auto h-[calc(100%-60px)]">
           {/* Waqf Type Selection */}
-          <div className="space-y-2.5">
-            <div className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-              <span className="font-arabic text-foreground text-xs sm:text-sm">المذهب</span>
+          <section className="space-y-3">
+            <div className="flex items-center gap-2.5">
+              <BookOpen className="h-5 w-5 text-primary" />
+              <span className="font-arabic text-foreground text-sm font-bold">المذهب</span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => handleWaqfChange("shia")}
-                className={`rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 font-arabic text-xs sm:text-sm transition-all ${
-                  waqfType === "shia"
-                    ? "gold-gradient text-primary-foreground font-bold"
-                    : "bg-secondary/60 text-foreground hover:bg-secondary"
-                }`}
-              >
-                الوقف الشيعي
-              </button>
-              <button
-                onClick={() => handleWaqfChange("sunni")}
-                className={`rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 font-arabic text-xs sm:text-sm transition-all ${
-                  waqfType === "sunni"
-                    ? "gold-gradient text-primary-foreground font-bold"
-                    : "bg-secondary/60 text-foreground hover:bg-secondary"
-                }`}
-              >
-                الوقف السني
-              </button>
+            <div className="grid grid-cols-2 gap-2.5">
+              {(["shia", "sunni"] as const).map((type) => (
+                <button
+                  key={type}
+                  onClick={() => handleWaqfChange(type)}
+                  className={`rounded-xl px-4 py-3 font-arabic text-sm transition-all duration-200 active:scale-95 ${
+                    waqfType === type
+                      ? "gold-gradient text-primary-foreground font-bold shadow-md"
+                      : "bg-secondary/60 text-foreground hover:bg-secondary hover:shadow-sm"
+                  }`}
+                >
+                  {type === "shia" ? "الوقف الشيعي" : "الوقف السني"}
+                </button>
+              ))}
             </div>
-          </div>
+          </section>
+
+          <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
           {/* Shia Province Section */}
           {waqfType === "shia" && (
-            <div className="space-y-2.5 animate-fade-in">
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                <span className="font-arabic text-foreground text-xs sm:text-sm">المحافظة</span>
+            <section className="space-y-3 animate-fade-in">
+              <div className="flex items-center gap-2.5">
+                <MapPin className="h-5 w-5 text-primary" />
+                <span className="font-arabic text-foreground text-sm font-bold">المحافظة</span>
               </div>
 
               <button
                 onClick={() => setShowProvinces(!showProvinces)}
-                className="w-full flex items-center justify-between rounded-xl gold-border bg-secondary/50 px-3 py-2.5 sm:px-4 sm:py-3 font-arabic text-xs sm:text-sm text-foreground transition-all hover:bg-secondary/70"
+                className="w-full flex items-center justify-between rounded-xl gold-border bg-secondary/50 px-4 py-3 font-arabic text-sm text-foreground transition-all hover:bg-secondary/70 active:scale-[0.98]"
               >
                 <span>اختر المحافظة</span>
                 <ChevronDown
@@ -152,14 +147,14 @@ const HamburgerMenu = ({
               </button>
 
               {showProvinces && (
-                <div className="grid grid-cols-2 gap-1.5 sm:gap-2 animate-fade-in max-h-52 overflow-y-auto">
+                <div className="grid grid-cols-2 gap-2 animate-fade-in max-h-52 overflow-y-auto rounded-xl p-1">
                   {governorates.map((gov) => (
                     <button
                       key={gov.id}
                       onClick={() => handleGovernorateSelect(gov.id)}
-                      className={`rounded-lg px-2 py-2 sm:px-3 sm:py-2.5 text-[11px] sm:text-sm font-arabic transition-all ${
+                      className={`rounded-lg px-3 py-2.5 text-xs sm:text-sm font-arabic transition-all duration-200 active:scale-95 ${
                         selectedGovernorate === gov.id
-                          ? "gold-gradient text-primary-foreground font-bold"
+                          ? "gold-gradient text-primary-foreground font-bold shadow-md"
                           : "bg-secondary/60 text-foreground hover:bg-secondary"
                       }`}
                     >
@@ -169,27 +164,27 @@ const HamburgerMenu = ({
                 </div>
               )}
 
-              <div className="w-full rounded-xl gold-border bg-secondary/50 px-3 py-2.5 sm:px-4 sm:py-3 text-center">
-                <span className="gold-text font-bold font-arabic text-sm sm:text-base">
+              <div className="w-full rounded-xl gold-border bg-secondary/50 px-4 py-3 text-center">
+                <span className="gold-text font-bold font-arabic text-base">
                   {currentShiaGov?.name}
                 </span>
               </div>
-            </div>
+            </section>
           )}
 
           {/* Sunni Province + Region Section */}
           {waqfType === "sunni" && (
-            <div className="space-y-3 animate-fade-in">
+            <section className="space-y-4 animate-fade-in">
               {/* Sunni Governorate */}
-              <div className="space-y-2.5">
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                  <span className="font-arabic text-foreground text-xs sm:text-sm">المحافظة</span>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2.5">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  <span className="font-arabic text-foreground text-sm font-bold">المحافظة</span>
                 </div>
 
                 <button
                   onClick={() => setShowSunniGovernorates(!showSunniGovernorates)}
-                  className="w-full flex items-center justify-between rounded-xl gold-border bg-secondary/50 px-3 py-2.5 sm:px-4 sm:py-3 font-arabic text-xs sm:text-sm text-foreground transition-all hover:bg-secondary/70"
+                  className="w-full flex items-center justify-between rounded-xl gold-border bg-secondary/50 px-4 py-3 font-arabic text-sm text-foreground transition-all hover:bg-secondary/70 active:scale-[0.98]"
                 >
                   <span>اختر المحافظة</span>
                   <ChevronDown
@@ -200,14 +195,14 @@ const HamburgerMenu = ({
                 </button>
 
                 {showSunniGovernorates && (
-                  <div className="grid grid-cols-2 gap-1.5 sm:gap-2 animate-fade-in max-h-48 overflow-y-auto">
+                  <div className="grid grid-cols-2 gap-2 animate-fade-in max-h-48 overflow-y-auto rounded-xl p-1">
                     {sunniGovernorates.map((gov) => (
                       <button
                         key={gov.id}
                         onClick={() => handleSunniGovernorateSelect(gov.id)}
-                        className={`rounded-lg px-2 py-2 sm:px-3 sm:py-2.5 text-[11px] sm:text-sm font-arabic transition-all ${
+                        className={`rounded-lg px-3 py-2.5 text-xs sm:text-sm font-arabic transition-all duration-200 active:scale-95 ${
                           selectedSunniGovernorate === gov.id
-                            ? "gold-gradient text-primary-foreground font-bold"
+                            ? "gold-gradient text-primary-foreground font-bold shadow-md"
                             : "bg-secondary/60 text-foreground hover:bg-secondary"
                         }`}
                       >
@@ -217,23 +212,25 @@ const HamburgerMenu = ({
                   </div>
                 )}
 
-                <div className="w-full rounded-xl gold-border bg-secondary/50 px-3 py-2.5 sm:px-4 sm:py-3 text-center">
-                  <span className="gold-text font-bold font-arabic text-sm sm:text-base">
+                <div className="w-full rounded-xl gold-border bg-secondary/50 px-4 py-3 text-center">
+                  <span className="gold-text font-bold font-arabic text-base">
                     {currentSunniGov?.name}
                   </span>
                 </div>
               </div>
 
+              <div className="h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />
+
               {/* Sunni Region */}
-              <div className="space-y-2.5">
-                <div className="flex items-center gap-2">
-                  <MapPinned className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                  <span className="font-arabic text-foreground text-xs sm:text-sm">المنطقة</span>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2.5">
+                  <MapPinned className="h-5 w-5 text-primary" />
+                  <span className="font-arabic text-foreground text-sm font-bold">المنطقة</span>
                 </div>
 
                 <button
                   onClick={() => setShowSunniRegions(!showSunniRegions)}
-                  className="w-full flex items-center justify-between rounded-xl gold-border bg-secondary/50 px-3 py-2.5 sm:px-4 sm:py-3 font-arabic text-xs sm:text-sm text-foreground transition-all hover:bg-secondary/70"
+                  className="w-full flex items-center justify-between rounded-xl gold-border bg-secondary/50 px-4 py-3 font-arabic text-sm text-foreground transition-all hover:bg-secondary/70 active:scale-[0.98]"
                 >
                   <span>اختر المنطقة</span>
                   <ChevronDown
@@ -244,14 +241,14 @@ const HamburgerMenu = ({
                 </button>
 
                 {showSunniRegions && currentSunniGov && (
-                  <div className="grid grid-cols-2 gap-1.5 sm:gap-2 animate-fade-in max-h-48 overflow-y-auto">
+                  <div className="grid grid-cols-2 gap-2 animate-fade-in max-h-48 overflow-y-auto rounded-xl p-1">
                     {currentSunniGov.regions.map((region) => (
                       <button
                         key={region.id}
                         onClick={() => handleSunniRegionSelect(region.id)}
-                        className={`rounded-lg px-2 py-2 sm:px-3 sm:py-2.5 text-[11px] sm:text-sm font-arabic transition-all ${
+                        className={`rounded-lg px-3 py-2.5 text-xs sm:text-sm font-arabic transition-all duration-200 active:scale-95 ${
                           selectedSunniRegion === region.id
-                            ? "gold-gradient text-primary-foreground font-bold"
+                            ? "gold-gradient text-primary-foreground font-bold shadow-md"
                             : "bg-secondary/60 text-foreground hover:bg-secondary"
                         }`}
                       >
@@ -261,35 +258,40 @@ const HamburgerMenu = ({
                   </div>
                 )}
 
-                <div className="w-full rounded-xl gold-border bg-secondary/50 px-3 py-2.5 sm:px-4 sm:py-3 text-center">
-                  <span className="gold-text font-bold font-arabic text-sm sm:text-base">
+                <div className="w-full rounded-xl gold-border bg-secondary/50 px-4 py-3 text-center">
+                  <span className="gold-text font-bold font-arabic text-base">
                     {currentSunniRegion?.name}
                   </span>
                 </div>
               </div>
-            </div>
+            </section>
           )}
 
+          <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+
           {/* Iftar Dua */}
-          <div className="rounded-xl gold-border bg-primary/5 p-4 sm:p-5 space-y-3">
-            <h3 className="gold-text font-display text-base sm:text-lg text-center font-bold">🤲 دعاء الإفطار</h3>
+          <section className="rounded-xl gold-border bg-primary/5 p-5 space-y-3">
+            <h3 className="gold-text font-display text-lg text-center font-bold">🤲 دعاء الإفطار</h3>
             <p className="text-foreground text-sm sm:text-base font-arabic leading-[2] text-center">
               اللَّهُمَّ لَكَ صُمْتُ، وَعَلَىٰ رِزْقِكَ أَفْطَرْتُ، وَلِصَوْمِ غَدٍ نَوَيْتُ.
             </p>
             <p className="text-foreground text-sm sm:text-base font-arabic leading-[2] text-center">
               ذَهَبَ الظَّمَأُ، وَابْتَلَّتِ العُرُوقُ، وَثَبَتَ الأَجْرُ إِنْ شَاءَ اللَّهُ.
             </p>
-          </div>
+          </section>
 
           {/* Info */}
-          <div className="rounded-xl gold-border bg-secondary/30 p-3 sm:p-4 space-y-2">
-            <p className="text-muted-foreground text-[10px] sm:text-xs font-arabic leading-relaxed">
+          <section className="rounded-xl gold-border bg-secondary/30 p-4 space-y-2">
+            <p className="text-muted-foreground text-xs font-arabic leading-relaxed">
               إمساكية شهر رمضان المبارك لعام ١٤٤٦ هجرية.
               {waqfType === "shia"
                 ? " الأوقات محسوبة حسب الوقف الشيعي لجميع المحافظات العراقية."
                 : " الأوقات محسوبة حسب الوقف السني للمحافظات والمناطق المتاحة."}
             </p>
-          </div>
+          </section>
+
+          {/* Bottom spacer */}
+          <div className="h-4" />
         </div>
       </div>
     </>
