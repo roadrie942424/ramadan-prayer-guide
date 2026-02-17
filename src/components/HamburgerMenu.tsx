@@ -118,7 +118,7 @@ const HamburgerMenu = ({
                       : "bg-secondary/60 text-foreground hover:bg-secondary hover:shadow-sm"
                   }`}
                 >
-                  {type === "shia" ? "الوقف الشيعي" : "الوقف السني"}
+                  {type === "shia" ? "الوقف الشيعي" : "الوقف لايعمل السني"}
                 </button>
               ))}
             </div>
