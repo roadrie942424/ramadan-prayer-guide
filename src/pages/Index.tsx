@@ -9,7 +9,7 @@ import HamburgerMenu, { WaqfType } from "@/components/HamburgerMenu";
 import CannonAnimation from "@/components/CannonAnimation";
 import { governorates } from "@/data/governorateData";
 import ramadanBg from "@/assets/ramadan-bg.jpg";
-import crescentMoon from "@/assets/crescent-moon.jfif";
+import crescentMoon from "@/assets/crescent-moon.png";
 import { motion } from "framer-motion";
 
 const Index = () => {
