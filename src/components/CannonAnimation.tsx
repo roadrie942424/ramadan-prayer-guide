@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DayPrayerTimes } from "@/data/prayerData";
-import cannonImg from "@/assets/cannon.jfif";
+import cannonImg from "@/assets/cannon.png";
 
 interface CannonAnimationProps {
   timings: DayPrayerTimes[];
