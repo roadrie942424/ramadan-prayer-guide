@@ -9,6 +9,7 @@ import HamburgerMenu, { WaqfType } from "@/components/HamburgerMenu";
 import CannonAnimation from "@/components/CannonAnimation";
 import { governorates } from "@/data/governorateData";
 import ramadanBg from "@/assets/ramadan-bg.jpg";
+import crescentMoon from "@/assets/crescent-moon.jfif";
 import { motion } from "framer-motion";
 
 const Index = () => {
@@ -84,8 +85,9 @@ const Index = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="inline-flex items-center gap-2 gold-border rounded-full px-5 py-2 bg-secondary/40">
-            <span className="text-lg sm:text-xl font-display gold-text">🌙 {currentHijriDate} ١٤٤٦ هـ</span>
+          <div className="inline-flex items-center gap-3 gold-border rounded-full px-5 py-2 bg-secondary/40">
+            <img src={crescentMoon} alt="هلال رمضان" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
+            <span className="text-lg sm:text-xl font-display gold-text">{currentHijriDate} ١٤٤٦ هـ</span>
           </div>
         </motion.div>
 
