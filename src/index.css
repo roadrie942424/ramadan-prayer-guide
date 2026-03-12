@@ -185,3 +185,15 @@
   .stagger-4 { animation-delay: 0.2s; }
   .stagger-5 { animation-delay: 0.25s; }
 }
+
+/* Mobile optimizations */
+@media (max-width: 380px) {
+  body {
+    font-size: 14px;
+  }
+}
+
+/* Prevent double-tap zoom on interactive elements */
+button, a, input, select, textarea {
+  touch-action: manipulation;
+}

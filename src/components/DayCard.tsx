@@ -34,7 +34,7 @@ const DayCard = ({ day, hijriDate, onClick, isSelected, isToday }: DayCardProps)
         />
       )}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      <span className={`text-2xl sm:text-3xl font-bold font-display relative z-10 ${
+      <span className={`text-xl sm:text-3xl font-bold font-display relative z-10 ${
         isSelected || isToday ? "text-primary" : "gold-text"
       }`}>
         {toArabicNumeral(day)}
