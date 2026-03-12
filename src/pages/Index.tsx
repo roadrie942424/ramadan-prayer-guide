@@ -88,10 +88,20 @@ const Index = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="inline-flex items-center gap-2 sm:gap-3 gold-border rounded-full px-4 sm:px-5 py-1.5 sm:py-2 bg-secondary/40">
-            <img src={crescentMoon} alt="هلال رمضان" className="w-7 h-7 sm:w-10 sm:h-10 object-contain" />
+          <motion.div
+            className="inline-flex items-center gap-2 sm:gap-3 gold-border rounded-full px-4 sm:px-5 py-1.5 sm:py-2 bg-secondary/40"
+            animate={{ y: [0, -4, 0] }}
+            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <motion.img
+              src={crescentMoon}
+              alt="هلال رمضان"
+              className="w-7 h-7 sm:w-10 sm:h-10 object-contain"
+              animate={{ rotate: [0, 8, -8, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            />
             <span className="text-base sm:text-xl font-display gold-text">{currentHijriDate} ١٤٤٦ هـ</span>
-          </div>
+          </motion.div>
         </motion.div>
 
         {/* Tabs */}
