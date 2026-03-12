@@ -18,7 +18,7 @@ const DayCard = ({ day, hijriDate, onClick, isSelected, isToday }: DayCardProps)
       transition={{ duration: 0.4, delay: (day % 10) * 0.03, type: "spring", stiffness: 200, damping: 20 }}
       whileHover={{ scale: 1.08, y: -4 }}
       whileTap={{ scale: 0.95 }}
-      className={`gold-border card-hover rounded-xl p-3 sm:p-4 flex flex-col items-center justify-center gap-1 sm:gap-2 min-h-[80px] sm:min-h-[100px] cursor-pointer group relative overflow-hidden ${
+      className={`gold-border card-hover rounded-xl p-2 sm:p-4 flex flex-col items-center justify-center gap-0.5 sm:gap-2 min-h-[68px] sm:min-h-[100px] cursor-pointer group relative overflow-hidden ${
         isSelected
           ? "bg-primary/20 ring-2 ring-primary shadow-[0_0_20px_hsl(45_80%_55%/0.3)]"
           : isToday
