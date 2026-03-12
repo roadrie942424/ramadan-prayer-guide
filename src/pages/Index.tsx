@@ -178,12 +178,23 @@ const Index = () => {
             {/* Section Title */}
             <motion.div
               className="text-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
             >
-              <h2 className="text-xl sm:text-2xl font-display gold-text">أيام شهر رمضان</h2>
-              <div className="mt-2 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent max-w-xs mx-auto" />
+              <motion.h2
+                className="text-xl sm:text-2xl font-display gold-text"
+                animate={{ scale: [1, 1.03, 1] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              >
+                ✦ أيام شهر رمضان ✦
+              </motion.h2>
+              <motion.div
+                className="mt-2 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent max-w-xs mx-auto"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ delay: 0.6, duration: 0.8 }}
+              />
             </motion.div>
 
             {/* Day Grid */}
