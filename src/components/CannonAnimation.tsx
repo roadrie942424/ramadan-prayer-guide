@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DayPrayerTimes } from "@/data/prayerData";
 import cannonImg from "@/assets/cannon.png";
@@ -29,17 +29,13 @@ const CannonAnimation = ({ timings, testMode = false }: CannonAnimationProps) =>
     setShow(true);
     setFired(true);
 
-    // Fuse burns for 1.5s, then fire
     setTimeout(() => {
       setPhase("fire");
       playCannonSound();
-    }, 1500);
+    }, 1800);
 
-    // Text appears at 2.5s
-    setTimeout(() => setPhase("text"), 2500);
-
-    // Hide at 7s
-    setTimeout(() => setShow(false), 7000);
+    setTimeout(() => setPhase("text"), 2800);
+    setTimeout(() => setShow(false), 7500);
   }, [fired, testMode, playCannonSound]);
 
   useEffect(() => {
@@ -72,27 +68,27 @@ const CannonAnimation = ({ timings, testMode = false }: CannonAnimationProps) =>
     return () => clearInterval(interval);
   }, [timings, testMode, triggerCannon]);
 
-  const sparks = Array.from({ length: 24 }, (_, i) => ({
+  const sparks = useMemo(() => Array.from({ length: 20 }, (_, i) => ({
     id: i,
-    angle: (i / 24) * 360,
-    distance: 60 + Math.random() * 160,
-    size: 3 + Math.random() * 7,
-    delay: Math.random() * 0.3,
-    duration: 0.5 + Math.random() * 0.7,
+    angle: (i / 20) * 360,
+    distance: 50 + Math.random() * 140,
+    size: 3 + Math.random() * 6,
+    delay: Math.random() * 0.25,
+    duration: 0.4 + Math.random() * 0.6,
     color: [
       "hsl(var(--gold))",
       "hsl(var(--gold-light))",
       "hsl(var(--destructive))",
       "hsl(45 100% 80%)",
     ][Math.floor(Math.random() * 4)],
-  }));
+  })), []);
 
-  const smokePuffs = Array.from({ length: 5 }, (_, i) => ({
+  const smokePuffs = useMemo(() => Array.from({ length: 4 }, (_, i) => ({
     id: i,
-    x: -20 + Math.random() * 40,
-    delay: i * 0.12,
-    size: 30 + Math.random() * 50,
-  }));
+    x: -15 + Math.random() * 30,
+    delay: i * 0.1,
+    size: 25 + Math.random() * 40,
+  })), []);
 
   const isFiring = phase === "fire" || phase === "text";
 
@@ -121,7 +117,7 @@ const CannonAnimation = ({ timings, testMode = false }: CannonAnimationProps) =>
               className="absolute inset-0 bg-primary/25"
               initial={{ opacity: 0 }}
               animate={{ opacity: [0, 1, 0] }}
-              transition={{ duration: 0.35 }}
+              transition={{ duration: 0.3 }}
             />
           )}
 
@@ -159,19 +155,36 @@ const CannonAnimation = ({ timings, testMode = false }: CannonAnimationProps) =>
             exit={{ y: 200, opacity: 0 }}
             transition={{ type: "spring", damping: 16, stiffness: 90 }}
           >
-            {/* SVG Fuse */}
+            {/* Fuse emerging from cannon - positioned at the cannon's rear/top */}
             <svg
               className="absolute z-20"
-              style={{ top: "-50px", left: "50%", transform: "translateX(-50%)" }}
-              width="60"
-              height="60"
-              viewBox="0 0 60 60"
+              style={{ top: "-8px", right: "-35px" }}
+              width="80"
+              height="70"
+              viewBox="0 0 80 70"
             >
-              {/* Fuse line */}
+              <defs>
+                <filter id="fuseGlow">
+                  <feGaussianBlur stdDeviation="4" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+                <filter id="sparkGlow">
+                  <feGaussianBlur stdDeviation="2.5" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+
+              {/* Fuse rope - wavy line from cannon body outward */}
               <motion.path
-                d="M30 55 Q25 40, 32 30 Q38 20, 28 8"
+                d="M10 60 Q20 50, 25 40 Q30 30, 40 25 Q50 20, 55 12 Q60 5, 70 3"
                 stroke="hsl(var(--gold-dark))"
-                strokeWidth="2.5"
+                strokeWidth="3"
                 fill="none"
                 strokeLinecap="round"
                 initial={{ pathLength: 1, opacity: 1 }}
@@ -180,63 +193,74 @@ const CannonAnimation = ({ timings, testMode = false }: CannonAnimationProps) =>
                     ? { pathLength: [1, 0], opacity: 1 }
                     : { pathLength: 0, opacity: 0 }
                 }
-                transition={{ duration: 1.5, ease: "linear" }}
+                transition={{ duration: 1.8, ease: "linear" }}
               />
-              {/* Spark at burn point */}
+
+              {/* Burning spark traveling along fuse */}
               {phase === "fuse" && (
-                <motion.circle
-                  r="4"
-                  fill="hsl(var(--gold-light))"
-                  filter="url(#glow)"
-                  initial={{ cx: 28, cy: 8 }}
-                  animate={{
-                    cx: [28, 32, 25, 30],
-                    cy: [8, 30, 40, 55],
-                  }}
-                  transition={{ duration: 1.5, ease: "linear" }}
-                />
+                <>
+                  <motion.circle
+                    r="5"
+                    fill="hsl(var(--gold-light))"
+                    filter="url(#fuseGlow)"
+                    initial={{ cx: 70, cy: 3, opacity: 1 }}
+                    animate={{
+                      cx: [70, 55, 40, 25, 10],
+                      cy: [3, 12, 25, 40, 60],
+                      opacity: [1, 1, 1, 1, 0],
+                    }}
+                    transition={{ duration: 1.8, ease: "linear" }}
+                  />
+                  {/* Tiny trailing sparks */}
+                  {[0, 1, 2].map((i) => (
+                    <motion.circle
+                      key={`trail-${i}`}
+                      r={2 - i * 0.5}
+                      fill="hsl(var(--destructive))"
+                      filter="url(#sparkGlow)"
+                      initial={{ cx: 70, cy: 3, opacity: 0 }}
+                      animate={{
+                        cx: [70, 55, 40, 25, 10],
+                        cy: [3, 12, 25, 40, 60],
+                        opacity: [0, 0.8, 0.6, 0.4, 0],
+                      }}
+                      transition={{ duration: 1.8, ease: "linear", delay: 0.08 * (i + 1) }}
+                    />
+                  ))}
+                </>
               )}
-              <defs>
-                <filter id="glow">
-                  <feGaussianBlur stdDeviation="3" result="blur" />
-                  <feMerge>
-                    <feMergeNode in="blur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-              </defs>
             </svg>
 
-            {/* Muzzle flash - only on fire */}
+            {/* Muzzle flash */}
             {isFiring && (
               <motion.div
-                className="absolute -top-14 left-1/2 -translate-x-1/2 w-32 h-32 sm:w-40 sm:h-40 rounded-full"
+                className="absolute -top-16 left-1/2 -translate-x-1/2 w-28 h-28 sm:w-36 sm:h-36 rounded-full"
                 style={{
                   background:
                     "radial-gradient(circle, hsl(var(--gold-light) / 0.9), hsl(var(--gold) / 0.4), transparent)",
                 }}
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: [0, 2.5, 0], opacity: [0, 1, 0] }}
-                transition={{ duration: 0.4 }}
+                transition={{ duration: 0.35 }}
               />
             )}
 
-            {/* Cannonball */}
+            {/* Cannonball - launches from muzzle */}
             {isFiring && (
               <motion.div
-                className="absolute left-1/2 -translate-x-1/2 w-5 h-5 sm:w-7 sm:h-7 rounded-full z-30"
+                className="absolute left-1/2 w-5 h-5 sm:w-6 sm:h-6 rounded-full z-30"
                 style={{
-                  background: "radial-gradient(circle at 35% 35%, hsl(var(--foreground)/0.6), hsl(222 47% 8%))",
-                  boxShadow: "0 0 12px hsl(var(--gold)/0.5)",
+                  background: "radial-gradient(circle at 30% 30%, hsl(var(--foreground)/0.5), hsl(222 47% 8%))",
+                  boxShadow: "0 0 10px hsl(var(--gold)/0.4), inset 0 -2px 4px rgba(0,0,0,0.5)",
                 }}
-                initial={{ top: "20%", opacity: 1, scale: 1 }}
+                initial={{ top: "10%", x: "-50%", opacity: 1, scale: 1 }}
                 animate={{
-                  top: ["-10%", "-200%", "-500%"],
-                  opacity: [1, 1, 0],
-                  scale: [1, 0.8, 0.4],
-                  x: [0, -30, -80],
+                  top: ["10%", "-80%", "-300%", "-600%"],
+                  x: ["-50%", "-60%", "-120%", "-200%"],
+                  opacity: [1, 1, 0.7, 0],
+                  scale: [1, 0.9, 0.6, 0.3],
                 }}
-                transition={{ duration: 1, ease: "easeOut" }}
+                transition={{ duration: 1.2, ease: "easeOut" }}
               />
             )}
 
@@ -247,13 +271,13 @@ const CannonAnimation = ({ timings, testMode = false }: CannonAnimationProps) =>
               className="w-32 h-32 sm:w-48 sm:h-48 object-contain drop-shadow-2xl"
               animate={
                 isFiring
-                  ? { y: [0, 10, -3, 0], rotate: [0, -5, 1.5, 0] }
+                  ? { y: [0, 12, -4, 0], rotate: [0, -6, 2, 0] }
                   : { y: 0, rotate: 0 }
               }
-              transition={isFiring ? { duration: 0.35, ease: "easeOut" } : {}}
+              transition={isFiring ? { duration: 0.3, ease: "easeOut" } : {}}
             />
 
-            {/* Sparks - only on fire */}
+            {/* Sparks */}
             {isFiring &&
               sparks.map((s) => (
                 <motion.div
@@ -268,9 +292,9 @@ const CannonAnimation = ({ timings, testMode = false }: CannonAnimationProps) =>
                   initial={{ x: 0, y: 0, opacity: 1 }}
                   animate={{
                     x: Math.cos((s.angle * Math.PI) / 180) * s.distance,
-                    y: Math.sin((s.angle * Math.PI) / 180) * s.distance - 60,
+                    y: Math.sin((s.angle * Math.PI) / 180) * s.distance - 50,
                     opacity: [1, 1, 0],
-                    scale: [0.5, 1.5, 0],
+                    scale: [0.5, 1.3, 0],
                   }}
                   transition={{
                     duration: s.duration,
@@ -286,33 +310,31 @@ const CannonAnimation = ({ timings, testMode = false }: CannonAnimationProps) =>
                 <motion.div
                   key={`smoke-${p.id}`}
                   className="absolute -top-6 left-1/2 rounded-full bg-foreground/10"
-                  style={{ width: p.size, height: p.size, filter: "blur(10px)" }}
+                  style={{ width: p.size, height: p.size, filter: "blur(8px)" }}
                   initial={{ x: p.x, y: 0, opacity: 0, scale: 0.3 }}
                   animate={{
-                    y: [-15, -100 - p.id * 20],
-                    x: [p.x, p.x + (Math.random() - 0.5) * 60],
-                    opacity: [0, 0.4, 0],
-                    scale: [0.3, 1.3, 1.8],
+                    y: [-10, -80 - p.id * 20],
+                    x: [p.x, p.x + (Math.random() - 0.5) * 50],
+                    opacity: [0, 0.35, 0],
+                    scale: [0.3, 1.2, 1.6],
                   }}
-                  transition={{ duration: 1.8, delay: p.delay, ease: "easeOut" }}
+                  transition={{ duration: 1.5, delay: p.delay, ease: "easeOut" }}
                 />
               ))}
 
-            {/* Shockwave rings */}
-            {isFiring &&
-              [0, 1].map((i) => (
-                <motion.div
-                  key={`ring-${i}`}
-                  className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-primary/30"
-                  initial={{ width: 10, height: 10, opacity: 0 }}
-                  animate={{
-                    width: [10, 160 + i * 50],
-                    height: [10, 160 + i * 50],
-                    opacity: [0, 0.5, 0],
-                  }}
-                  transition={{ duration: 1, delay: i * 0.12, ease: "easeOut" }}
-                />
-              ))}
+            {/* Shockwave ring */}
+            {isFiring && (
+              <motion.div
+                className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-primary/30"
+                initial={{ width: 10, height: 10, opacity: 0 }}
+                animate={{
+                  width: [10, 180],
+                  height: [10, 180],
+                  opacity: [0, 0.5, 0],
+                }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              />
+            )}
           </motion.div>
         </motion.div>
       )}

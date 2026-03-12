@@ -88,10 +88,20 @@ const Index = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="inline-flex items-center gap-2 sm:gap-3 gold-border rounded-full px-4 sm:px-5 py-1.5 sm:py-2 bg-secondary/40">
-            <img src={crescentMoon} alt="هلال رمضان" className="w-7 h-7 sm:w-10 sm:h-10 object-contain" />
+          <motion.div
+            className="inline-flex items-center gap-2 sm:gap-3 gold-border rounded-full px-4 sm:px-5 py-1.5 sm:py-2 bg-secondary/40"
+            animate={{ y: [0, -4, 0] }}
+            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <motion.img
+              src={crescentMoon}
+              alt="هلال رمضان"
+              className="w-7 h-7 sm:w-10 sm:h-10 object-contain"
+              animate={{ rotate: [0, 8, -8, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            />
             <span className="text-base sm:text-xl font-display gold-text">{currentHijriDate} ١٤٤٦ هـ</span>
-          </div>
+          </motion.div>
         </motion.div>
 
         {/* Tabs */}
@@ -168,12 +178,23 @@ const Index = () => {
             {/* Section Title */}
             <motion.div
               className="text-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
             >
-              <h2 className="text-xl sm:text-2xl font-display gold-text">أيام شهر رمضان</h2>
-              <div className="mt-2 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent max-w-xs mx-auto" />
+              <motion.h2
+                className="text-xl sm:text-2xl font-display gold-text"
+                animate={{ scale: [1, 1.03, 1] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              >
+                ✦ أيام شهر رمضان ✦
+              </motion.h2>
+              <motion.div
+                className="mt-2 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent max-w-xs mx-auto"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ delay: 0.6, duration: 0.8 }}
+              />
             </motion.div>
 
             {/* Day Grid */}
