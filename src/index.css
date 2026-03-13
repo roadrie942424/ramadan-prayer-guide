@@ -82,6 +82,10 @@
     font-family: 'Noto Naskh Arabic', 'Amiri', serif;
   }
 
+  .font-uthmanic {
+    font-family: 'Uthmanic', 'Amiri', serif;
+  }
+
   .font-display {
     font-family: 'Amiri', serif;
   }
