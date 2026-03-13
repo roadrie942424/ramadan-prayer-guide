@@ -55,7 +55,14 @@ const HamburgerMenu = ({
     setShowSunniRegions(false);
   };
 
+  const [showSunniBlock, setShowSunniBlock] = useState(false);
+
   const handleWaqfChange = (type: WaqfType) => {
+    if (type === "sunni") {
+      setShowSunniBlock(true);
+      return;
+    }
+    setShowSunniBlock(false);
     onWaqfTypeChange(type);
   };
 
