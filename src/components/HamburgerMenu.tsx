@@ -55,7 +55,14 @@ const HamburgerMenu = ({
     setShowSunniRegions(false);
   };
 
+  const [showSunniBlock, setShowSunniBlock] = useState(false);
+
   const handleWaqfChange = (type: WaqfType) => {
+    if (type === "sunni") {
+      setShowSunniBlock(true);
+      return;
+    }
+    setShowSunniBlock(false);
     onWaqfTypeChange(type);
   };
 
@@ -123,6 +130,24 @@ const HamburgerMenu = ({
               ))}
             </div>
           </section>
+
+          {/* Sunni block overlay */}
+          {showSunniBlock && (
+            <section className="rounded-xl gold-border bg-destructive/10 p-5 space-y-3 animate-fade-in text-center">
+              <p className="text-destructive font-arabic text-sm font-bold">⚠️ تنبيه</p>
+              <p className="text-foreground/80 font-arabic text-xs leading-relaxed">
+                أوقات الوقف السني قيد المراجعة حالياً بسبب وجود مشاكل في بعض الأوقات.
+                <br />
+                سيتم تفعيلها قريباً إن شاء الله.
+              </p>
+              <button
+                onClick={() => setShowSunniBlock(false)}
+                className="gold-border rounded-lg px-4 py-2 bg-secondary/40 text-xs font-arabic text-foreground/80 hover:bg-secondary/60 transition-colors"
+              >
+                حسناً
+              </button>
+            </section>
+          )}
 
           <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 

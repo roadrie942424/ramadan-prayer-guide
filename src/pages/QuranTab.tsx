@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  BookOpen, Search, Bookmark, BookmarkCheck, Copy, Check,
+  Search, Bookmark, BookmarkCheck, Check,
   Plus, Minus, ChevronUp, X, Loader2
 } from "lucide-react";
 
@@ -22,12 +22,151 @@ interface Surah {
   ayahs: Ayah[];
 }
 
+const BASMALA = "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ";
 const AYAH_END_SYMBOL = "\u06DD";
 
 const formatAyahNumber = (n: number) => {
   const arabicDigits = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
   return String(n).split("").map(d => arabicDigits[+d]).join("");
 };
+
+/** Strip basmala from first ayah of surahs (except Fatiha & Tawbah) */
+const stripBasmala = (text: string, surahNum: number, ayahInSurah: number): string => {
+  if (ayahInSurah !== 1 || surahNum === 1 || surahNum === 9) return text;
+  // The API prepends basmala to first ayah. Remove first ~38 chars
+  const stripped = text.replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ\s*/, "");
+  return stripped || text;
+};
+
+// Lazy Surah component - only renders content when visible
+const LazySurah = ({
+  surah,
+  fontSize,
+  bookmarks,
+  copiedAyah,
+  searchQuery,
+  onCopy,
+  onToggleBookmark,
+  surahRef,
+  ayahRefs,
+}: {
+  surah: Surah;
+  fontSize: number;
+  bookmarks: number[];
+  copiedAyah: number | null;
+  searchQuery: string;
+  onCopy: (text: string, num: number) => void;
+  onToggleBookmark: (num: number) => void;
+  surahRef: (el: HTMLDivElement | null) => void;
+  ayahRefs: React.MutableRefObject<Map<number, HTMLSpanElement>>;
+}) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setIsVisible(true); observer.disconnect(); } },
+      { rootMargin: "600px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const showBasmala = surah.number !== 1 && surah.number !== 9;
+
+  return (
+    <div
+      ref={el => { surahRef(el); sentinelRef.current = el as any; }}
+      id={`surah-${surah.number}`}
+      className="mb-8"
+      style={{ contentVisibility: "auto", containIntrinsicSize: "auto 800px" }}
+    >
+      {/* Surah header */}
+      <div className="text-center my-5 sm:my-7">
+        <div className="inline-block gold-border rounded-2xl px-6 sm:px-10 py-3 sm:py-4 bg-secondary/40 gold-glow">
+          <h2 className="text-xl sm:text-2xl font-display gold-text">{surah.name}</h2>
+          <p className="text-xs text-muted-foreground mt-1 font-arabic">{surah.numberOfAyahs} آيات</p>
+        </div>
+        {showBasmala && (
+          <p
+            className="mt-4 text-foreground/90 font-uthmanic"
+            style={{ fontSize: fontSize * 0.9 }}
+          >
+            {BASMALA}
+          </p>
+        )}
+      </div>
+
+      {/* Ayahs as inline text in a single <p> */}
+      {isVisible ? (
+        <p
+          className="leading-[2.4] sm:leading-[2.6] text-foreground/95 text-justify px-2 sm:px-4 font-uthmanic"
+          dir="rtl"
+          style={{ fontSize }}
+        >
+          {surah.ayahs.map(ayah => {
+            const text = stripBasmala(ayah.text, surah.number, ayah.numberInSurah);
+            return (
+              <span
+                key={ayah.number}
+                ref={el => { if (el) ayahRefs.current.set(ayah.number, el); }}
+                className="ayah-span relative inline group"
+              >
+                <span
+                  className="cursor-pointer hover:text-primary/90 transition-colors"
+                  onClick={() => onCopy(ayah.text, ayah.number)}
+                >
+                  {searchQuery ? highlightInline(text, searchQuery) : text}
+                </span>
+                <span
+                  className="inline text-primary/80 select-none"
+                  style={{ fontSize: fontSize * 0.65 }}
+                >{AYAH_END_SYMBOL}{formatAyahNumber(ayah.numberInSurah)}</span>
+                <span
+                  className="inline-block align-middle cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={e => { e.stopPropagation(); onToggleBookmark(ayah.number); }}
+                >
+                  {bookmarks.includes(ayah.number) ? (
+                    <BookmarkCheck className="w-3.5 h-3.5 text-primary inline" />
+                  ) : (
+                    <Bookmark className="w-3.5 h-3.5 text-muted-foreground hover:text-primary inline" />
+                  )}
+                </span>
+                <AnimatePresence>
+                  {copiedAyah === ayah.number && (
+                    <motion.span
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute -top-8 right-1/2 translate-x-1/2 bg-card border border-primary/30 rounded-lg px-2 py-1 text-xs text-primary flex items-center gap-1 whitespace-nowrap z-20 shadow-lg"
+                    >
+                      <Check className="w-3 h-3" /> تم النسخ
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </span>
+            );
+          })}
+        </p>
+      ) : (
+        <div style={{ minHeight: 400 }} />
+      )}
+    </div>
+  );
+};
+
+function highlightInline(text: string, query: string) {
+  if (!query.trim()) return text;
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const parts = text.split(new RegExp(`(${escaped})`, 'g'));
+  return parts.map((part, i) =>
+    part === query
+      ? <mark key={i} className="bg-primary/30 text-foreground rounded px-0.5">{part}</mark>
+      : part
+  );
+}
 
 const QuranTab = () => {
   const [surahs, setSurahs] = useState<Surah[]>([]);
@@ -48,7 +187,6 @@ const QuranTab = () => {
   const [copiedAyah, setCopiedAyah] = useState<number | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  const containerRef = useRef<HTMLDivElement>(null);
   const surahRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const ayahRefs = useRef<Map<number, HTMLSpanElement>>(new Map());
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
@@ -78,24 +216,15 @@ const QuranTab = () => {
     fetchQuran();
   }, []);
 
-  // Save bookmarks
-  useEffect(() => {
-    localStorage.setItem("quran-bookmarks", JSON.stringify(bookmarks));
-  }, [bookmarks]);
+  useEffect(() => { localStorage.setItem("quran-bookmarks", JSON.stringify(bookmarks)); }, [bookmarks]);
+  useEffect(() => { localStorage.setItem("quran-font-size", String(fontSize)); }, [fontSize]);
 
-  // Save font size
+  // Scroll-to-top via native scroll
   useEffect(() => {
-    localStorage.setItem("quran-font-size", String(fontSize));
-  }, [fontSize]);
-
-  // Scroll to top button
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const onScroll = () => setShowScrollTop(el.scrollTop > 600);
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
-  }, [loading]);
+    const onScroll = () => setShowScrollTop(window.scrollY > 600);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Search
   useEffect(() => {
@@ -149,19 +278,16 @@ const QuranTab = () => {
   const copyAyah = useCallback(async (text: string, num: number) => {
     try {
       await navigator.clipboard.writeText(text);
-      setCopiedAyah(num);
-      setTimeout(() => setCopiedAyah(null), 2000);
     } catch {
-      // fallback
       const ta = document.createElement("textarea");
       ta.value = text;
       document.body.appendChild(ta);
       ta.select();
       document.execCommand("copy");
       document.body.removeChild(ta);
-      setCopiedAyah(num);
-      setTimeout(() => setCopiedAyah(null), 2000);
     }
+    setCopiedAyah(num);
+    setTimeout(() => setCopiedAyah(null), 2000);
   }, []);
 
   const bookmarkedAyahs = useMemo(() => {
@@ -174,16 +300,6 @@ const QuranTab = () => {
     }
     return all;
   }, [showBookmarks, bookmarks, surahs]);
-
-  const highlightText = (text: string, query: string) => {
-    if (!query.trim()) return text;
-    const parts = text.split(new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'g'));
-    return parts.map((part, i) =>
-      part === query
-        ? <mark key={i} className="bg-primary/30 text-foreground rounded px-0.5">{part}</mark>
-        : part
-    );
-  };
 
   if (loading) {
     return (
@@ -206,10 +322,10 @@ const QuranTab = () => {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-200px)] sm:h-[calc(100vh-220px)]">
+    <div className="flex flex-col">
       {/* Sticky toolbar */}
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b border-border pb-2 space-y-2 px-1">
-        {/* Row 1: Surah dropdown + font controls + bookmarks */}
+        {/* Row 1 */}
         <div className="flex items-center gap-2">
           <select
             onChange={e => scrollToSurah(+e.target.value)}
@@ -222,30 +338,19 @@ const QuranTab = () => {
             ))}
           </select>
 
-          {/* Font size */}
           <div className="flex items-center gap-1 gold-border rounded-lg px-1.5 py-1 bg-secondary/40">
-            <button
-              onClick={() => setFontSize(f => Math.max(18, f - 2))}
-              className="p-0.5 text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="تصغير الخط"
-            >
+            <button onClick={() => setFontSize(f => Math.max(18, f - 2))} className="p-0.5 text-muted-foreground hover:text-foreground transition-colors">
               <Minus className="w-3.5 h-3.5" />
             </button>
             <span className="text-xs text-muted-foreground min-w-[1.5rem] text-center">{fontSize}</span>
-            <button
-              onClick={() => setFontSize(f => Math.min(48, f + 2))}
-              className="p-0.5 text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="تكبير الخط"
-            >
+            <button onClick={() => setFontSize(f => Math.min(48, f + 2))} className="p-0.5 text-muted-foreground hover:text-foreground transition-colors">
               <Plus className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          {/* Bookmarks toggle */}
           <button
             onClick={() => setShowBookmarks(!showBookmarks)}
             className={`p-2 rounded-lg transition-colors ${showBookmarks ? 'bg-primary/20 text-primary' : 'bg-secondary/40 text-muted-foreground hover:text-foreground'}`}
-            aria-label="المحفوظات"
           >
             <Bookmark className="w-4 h-4" />
           </button>
@@ -269,7 +374,7 @@ const QuranTab = () => {
           )}
         </div>
 
-        {/* Search results dropdown */}
+        {/* Search results */}
         <AnimatePresence>
           {searchQuery.trim() && (
             <motion.div
@@ -290,8 +395,8 @@ const QuranTab = () => {
                     className="w-full text-right px-3 py-2 hover:bg-secondary/60 transition-colors border-b border-border/50 last:border-0"
                   >
                     <span className="text-xs text-primary font-arabic">{a.surah.name} - آية {formatAyahNumber(a.numberInSurah)}</span>
-                    <p className="text-sm font-arabic text-foreground/80 line-clamp-1 mt-0.5" style={{ fontFamily: "'Uthmanic', 'Amiri', serif" }}>
-                      {highlightText(a.text, searchQuery.trim())}
+                    <p className="text-sm font-uthmanic text-foreground/80 line-clamp-1 mt-0.5">
+                      {highlightInline(a.text, searchQuery.trim())}
                     </p>
                   </button>
                 ))
@@ -319,7 +424,7 @@ const QuranTab = () => {
                     className="w-full text-right px-3 py-2 hover:bg-secondary/60 transition-colors border-b border-border/50 last:border-0"
                   >
                     <span className="text-xs text-primary font-arabic">{a.surah.name} - آية {formatAyahNumber(a.numberInSurah)}</span>
-                    <p className="text-sm font-arabic text-foreground/80 line-clamp-1 mt-0.5" style={{ fontFamily: "'Uthmanic', 'Amiri', serif" }}>
+                    <p className="text-sm font-uthmanic text-foreground/80 line-clamp-1 mt-0.5">
                       {a.text.slice(0, 80)}...
                     </p>
                   </button>
@@ -330,89 +435,21 @@ const QuranTab = () => {
         </AnimatePresence>
       </div>
 
-      {/* Quran content - continuous scroll */}
-      <div ref={containerRef} className="flex-1 overflow-y-auto scroll-smooth px-2 sm:px-4 pt-4 pb-20">
+      {/* Quran content - native body scroll, no fixed height */}
+      <div className="px-2 sm:px-4 pt-4 pb-20">
         {surahs.map(surah => (
-          <div
+          <LazySurah
             key={surah.number}
-            ref={el => { if (el) surahRefs.current.set(surah.number, el); }}
-            className="mb-10"
-            style={{ contentVisibility: "auto", containIntrinsicSize: "auto 500px" }}
-          >
-            {/* Surah header */}
-            <div className="text-center my-6 sm:my-8">
-              <div className="inline-block gold-border rounded-2xl px-6 sm:px-10 py-3 sm:py-4 bg-secondary/40 gold-glow">
-                <h2 className="text-xl sm:text-2xl font-display gold-text">{surah.name}</h2>
-                <p className="text-xs text-muted-foreground mt-1 font-arabic">{surah.numberOfAyahs} آيات</p>
-              </div>
-              {/* Bismillah - except Al-Fatiha and At-Tawbah */}
-              {surah.number !== 1 && surah.number !== 9 && (
-                <p
-                  className="mt-4 text-foreground/90"
-                  style={{ fontFamily: "'Uthmanic', 'Amiri', serif", fontSize: fontSize * 0.9 }}
-                >
-                  بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
-                </p>
-              )}
-            </div>
-
-            {/* Ayahs - inline flow */}
-            <div
-              className="leading-[2.2] sm:leading-[2.4] text-foreground/95 text-justify px-1 sm:px-2"
-              dir="rtl"
-              style={{ fontFamily: "'Uthmanic', 'Amiri', serif", fontSize }}
-            >
-              {surah.ayahs.map(ayah => (
-                <span
-                  key={ayah.number}
-                  ref={el => { if (el) ayahRefs.current.set(ayah.number, el); }}
-                  className="ayah-span relative inline group"
-                >
-                  {/* Ayah text */}
-                  <span
-                    className="cursor-pointer hover:text-primary/90 transition-colors"
-                    onClick={() => copyAyah(ayah.text, ayah.number)}
-                  >
-                    {ayah.text}
-                  </span>
-
-                  {/* Ayah number ornament */}
-                  <span className="inline-flex items-center justify-center mx-1 text-primary/80 select-none" style={{ fontSize: fontSize * 0.7 }}>
-                    {AYAH_END_SYMBOL}{formatAyahNumber(ayah.numberInSurah)}
-                  </span>
-
-                  {/* Bookmark icon - appears on hover */}
-                  <span
-                    className="inline-block align-middle cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity mx-0.5"
-                    onClick={e => { e.stopPropagation(); toggleBookmark(ayah.number); }}
-                  >
-                    {bookmarks.includes(ayah.number) ? (
-                      <BookmarkCheck className="w-4 h-4 text-primary inline" />
-                    ) : (
-                      <Bookmark className="w-4 h-4 text-muted-foreground hover:text-primary inline" />
-                    )}
-                  </span>
-
-                  {/* Copy confirmation */}
-                  <AnimatePresence>
-                    {copiedAyah === ayah.number && (
-                      <motion.span
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="absolute -top-8 right-1/2 translate-x-1/2 bg-card border border-primary/30 rounded-lg px-2 py-1 text-xs text-primary flex items-center gap-1 whitespace-nowrap z-20 shadow-lg"
-                      >
-                        <Check className="w-3 h-3" /> تم النسخ
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Separator */}
-                  {"  "}
-                </span>
-              ))}
-            </div>
-          </div>
+            surah={surah}
+            fontSize={fontSize}
+            bookmarks={bookmarks}
+            copiedAyah={copiedAyah}
+            searchQuery={searchQuery}
+            onCopy={copyAyah}
+            onToggleBookmark={toggleBookmark}
+            surahRef={el => { if (el) surahRefs.current.set(surah.number, el); }}
+            ayahRefs={ayahRefs}
+          />
         ))}
       </div>
 
@@ -423,9 +460,8 @@ const QuranTab = () => {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            onClick={() => containerRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             className="fixed bottom-6 left-4 z-40 p-3 rounded-full gold-border bg-secondary/80 backdrop-blur-sm text-primary shadow-lg"
-            aria-label="العودة للأعلى"
           >
             <ChevronUp className="w-5 h-5" />
           </motion.button>
