@@ -205,6 +205,28 @@
   }
 }
 
+/* Quran highlight animation */
+.highlight-ayah {
+  background: hsl(var(--primary) / 0.15);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.highlight-ayah::after {
+  content: '';
+  animation: fade-highlight 3s forwards;
+}
+
+@keyframes fade-highlight {
+  0% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.ayah-span {
+  transition: background 0.3s ease;
+}
+
 /* Prevent double-tap zoom on interactive elements */
 button, a, input, select, textarea {
   touch-action: manipulation;
