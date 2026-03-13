@@ -8,10 +8,57 @@ interface CannonAnimationProps {
   testMode?: boolean;
 }
 
+// Cannonball as independent object with fire()
+class Cannonball {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  gravity: number;
+  lifetime: number;
+  age: number;
+  alive: boolean;
+
+  constructor() {
+    this.x = 0;
+    this.y = 0;
+    this.vx = 0;
+    this.vy = 0;
+    this.gravity = 0.4;
+    this.lifetime = 2000;
+    this.age = 0;
+    this.alive = false;
+  }
+
+  fire(startX: number, startY: number, angle: number, force: number) {
+    this.x = startX;
+    this.y = startY;
+    const rad = (angle * Math.PI) / 180;
+    this.vx = Math.cos(rad) * force;
+    this.vy = -Math.sin(rad) * force;
+    this.age = 0;
+    this.alive = true;
+  }
+
+  update(dt: number) {
+    if (!this.alive) return;
+    this.vy += this.gravity;
+    this.x += this.vx;
+    this.y += this.vy;
+    this.age += dt;
+    if (this.age >= this.lifetime) this.alive = false;
+  }
+}
+
 const CannonAnimation = ({ timings, testMode = false }: CannonAnimationProps) => {
   const [show, setShow] = useState(false);
   const [fired, setFired] = useState(false);
   const [phase, setPhase] = useState<"fuse" | "fire" | "text">("fuse");
+  const [ballPos, setBallPos] = useState<{ x: number; y: number; alive: boolean; trail: { x: number; y: number }[] }>({
+    x: 0, y: 0, alive: false, trail: []
+  });
+
+  const cannonballRef = useMemo(() => new Cannonball(), []);
 
   const playCannonSound = useCallback(() => {
     try {
@@ -29,14 +76,35 @@ const CannonAnimation = ({ timings, testMode = false }: CannonAnimationProps) =>
     setShow(true);
     setFired(true);
 
+    // Fuse burns for 1.8s, then fire
     setTimeout(() => {
       setPhase("fire");
       playCannonSound();
+
+      // Launch cannonball with physics
+      cannonballRef.fire(0, -20, 75, 14);
+      const startTime = Date.now();
+      const animate = () => {
+        const dt = 16;
+        cannonballRef.update(dt);
+        if (cannonballRef.alive) {
+          setBallPos(prev => ({
+            x: cannonballRef.x,
+            y: cannonballRef.y,
+            alive: true,
+            trail: [...prev.trail.slice(-8), { x: cannonballRef.x, y: cannonballRef.y }]
+          }));
+          requestAnimationFrame(animate);
+        } else {
+          setBallPos(prev => ({ ...prev, alive: false, trail: [] }));
+        }
+      };
+      requestAnimationFrame(animate);
     }, 1800);
 
     setTimeout(() => setPhase("text"), 2800);
     setTimeout(() => setShow(false), 7500);
-  }, [fired, testMode, playCannonSound]);
+  }, [fired, testMode, playCannonSound, cannonballRef]);
 
   useEffect(() => {
     if (testMode) {
@@ -155,7 +223,7 @@ const CannonAnimation = ({ timings, testMode = false }: CannonAnimationProps) =>
             exit={{ y: 200, opacity: 0 }}
             transition={{ type: "spring", damping: 16, stiffness: 90 }}
           >
-            {/* Fuse emerging from cannon - positioned at the cannon's rear/top */}
+            {/* Fuse emerging from cannon body */}
             <svg
               className="absolute z-20"
               style={{ top: "-8px", right: "-35px" }}
@@ -180,7 +248,7 @@ const CannonAnimation = ({ timings, testMode = false }: CannonAnimationProps) =>
                 </filter>
               </defs>
 
-              {/* Fuse rope - wavy line from cannon body outward */}
+              {/* Fuse rope from cannon body outward */}
               <motion.path
                 d="M10 60 Q20 50, 25 40 Q30 30, 40 25 Q50 20, 55 12 Q60 5, 70 3"
                 stroke="hsl(var(--gold-dark))"
@@ -211,7 +279,6 @@ const CannonAnimation = ({ timings, testMode = false }: CannonAnimationProps) =>
                     }}
                     transition={{ duration: 1.8, ease: "linear" }}
                   />
-                  {/* Tiny trailing sparks */}
                   {[0, 1, 2].map((i) => (
                     <motion.circle
                       key={`trail-${i}`}
@@ -245,23 +312,39 @@ const CannonAnimation = ({ timings, testMode = false }: CannonAnimationProps) =>
               />
             )}
 
-            {/* Cannonball - launches from muzzle */}
-            {isFiring && (
-              <motion.div
-                className="absolute left-1/2 w-5 h-5 sm:w-6 sm:h-6 rounded-full z-30"
-                style={{
-                  background: "radial-gradient(circle at 30% 30%, hsl(var(--foreground)/0.5), hsl(222 47% 8%))",
-                  boxShadow: "0 0 10px hsl(var(--gold)/0.4), inset 0 -2px 4px rgba(0,0,0,0.5)",
-                }}
-                initial={{ top: "10%", x: "-50%", opacity: 1, scale: 1 }}
-                animate={{
-                  top: ["10%", "-80%", "-300%", "-600%"],
-                  x: ["-50%", "-60%", "-120%", "-200%"],
-                  opacity: [1, 1, 0.7, 0],
-                  scale: [1, 0.9, 0.6, 0.3],
-                }}
-                transition={{ duration: 1.2, ease: "easeOut" }}
-              />
+            {/* Physics-based cannonball with trail */}
+            {ballPos.alive && (
+              <>
+                {/* Trail */}
+                {ballPos.trail.map((t, i) => (
+                  <div
+                    key={i}
+                    className="absolute rounded-full"
+                    style={{
+                      left: `calc(50% + ${t.x}px)`,
+                      top: `${t.y}px`,
+                      width: 4 + i * 0.5,
+                      height: 4 + i * 0.5,
+                      background: `hsl(var(--gold) / ${0.1 + (i / ballPos.trail.length) * 0.3})`,
+                      filter: "blur(1px)",
+                      transform: "translate(-50%, -50%)",
+                    }}
+                  />
+                ))}
+                {/* Ball */}
+                <div
+                  className="absolute rounded-full z-30"
+                  style={{
+                    left: `calc(50% + ${ballPos.x}px)`,
+                    top: `${ballPos.y}px`,
+                    width: 18,
+                    height: 18,
+                    background: "radial-gradient(circle at 30% 30%, hsl(var(--foreground)/0.5), hsl(222 47% 8%))",
+                    boxShadow: "0 0 12px hsl(var(--gold)/0.5), inset 0 -2px 4px rgba(0,0,0,0.5)",
+                    transform: "translate(-50%, -50%)",
+                  }}
+                />
+              </>
             )}
 
             {/* Cannon image with recoil */}

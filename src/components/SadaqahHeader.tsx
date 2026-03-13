@@ -1,17 +1,6 @@
 import ramadanIcon from "@/assets/ramadan-icon.jpg";
 import { motion } from "framer-motion";
 
-const shimmer = {
-  animate: {
-    backgroundPosition: ["200% 0%", "-200% 0%"],
-  },
-  transition: {
-    duration: 4,
-    repeat: Infinity,
-    ease: "linear" as const,
-  },
-};
-
 const SadaqahHeader = () => {
   return (
     <div className="text-center space-y-5" dir="rtl">
@@ -24,7 +13,7 @@ const SadaqahHeader = () => {
         <img src={ramadanIcon} alt="Ramadan" className="w-full h-full object-cover" />
       </motion.div>
 
-      {/* Title with shimmer */}
+      {/* Title - stable, no disappearing */}
       <div className="space-y-2">
         <motion.h1
           className="text-3xl sm:text-5xl font-display gold-text leading-tight"
@@ -34,8 +23,8 @@ const SadaqahHeader = () => {
         >
           <motion.span
             className="inline-block"
-            animate={{ scale: [1, 1.03, 1] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            animate={{ y: [0, -3, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
           >
             صدقة جارية
           </motion.span>
@@ -58,15 +47,11 @@ const SadaqahHeader = () => {
         transition={{ delay: 0.5, duration: 0.6, type: "spring" }}
         whileHover={{ scale: 1.02 }}
       >
-        <motion.p
-          className="text-foreground font-arabic text-base sm:text-lg leading-relaxed"
-          animate={{ opacity: [0.85, 1, 0.85] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        >
+        <p className="text-foreground font-arabic text-base sm:text-lg leading-relaxed">
           اللّهمّ تقبّل منّا صيامنا وقيامنا
           <br />
           وارحم موتانا وموتى المسلمين
-        </motion.p>
+        </p>
         <div className="h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
         <p className="text-muted-foreground text-xs sm:text-sm font-arabic">
           الفاتحة لأرواح جميع المؤمنين والمؤمنات
