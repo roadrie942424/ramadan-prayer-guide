@@ -1,5 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap');
 
+@font-face {
+  font-family: 'Uthmanic';
+  src: url('/fonts/UthmanicHafs_V20.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -72,6 +80,10 @@
 @layer utilities {
   .font-arabic {
     font-family: 'Noto Naskh Arabic', 'Amiri', serif;
+  }
+
+  .font-uthmanic {
+    font-family: 'Uthmanic', 'Amiri', serif;
   }
 
   .font-display {
@@ -191,6 +203,28 @@
   body {
     font-size: 14px;
   }
+}
+
+/* Quran highlight animation */
+.highlight-ayah {
+  background: hsl(var(--primary) / 0.15);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.highlight-ayah::after {
+  content: '';
+  animation: fade-highlight 3s forwards;
+}
+
+@keyframes fade-highlight {
+  0% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.ayah-span {
+  transition: background 0.3s ease;
 }
 
 /* Prevent double-tap zoom on interactive elements */
