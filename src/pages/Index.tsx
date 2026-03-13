@@ -73,11 +73,7 @@ const Index = () => {
 
       {/* Cannon Animation */}
       <CannonAnimation timings={timings} testMode={testCannon} />
-      {testCannon && (
-        <div className="fixed z-[101]" style={{ display: "none" }}>
-          {setTimeout(() => setTestCannon(false), 7000) && null}
-        </div>
-      )}
+      {testCannon && setTimeout(() => setTestCannon(false), 7000) && null}
 
       {/* Content */}
       <div className="relative z-10 max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-10 space-y-6 sm:space-y-10">
