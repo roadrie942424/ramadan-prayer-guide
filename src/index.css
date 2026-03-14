@@ -209,6 +209,7 @@
 .quran-text {
   font-family: 'Uthmanic', 'Amiri', serif;
   direction: rtl;
+  line-height: 2.6;
 }
 
 .highlight-ayah {
@@ -217,23 +218,29 @@
   transition: background 0.3s ease;
 }
 
-.highlight-ayah::after {
-  content: '';
-  animation: fade-highlight 3s forwards;
-}
-
-@keyframes fade-highlight {
-  0% { opacity: 1; }
-  70% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
 .ayah-span {
+  display: inline;
   transition: all 0.2s ease;
 }
 
 .ayah-span:hover {
   text-shadow: 0 0 12px hsl(45 80% 55% / 0.25);
+}
+
+.playing-ayah {
+  background: hsl(var(--primary) / 0.12);
+  border-radius: 4px;
+  text-shadow: 0 0 16px hsl(45 80% 55% / 0.35);
+}
+
+/* Eco mode */
+.eco-mode * {
+  animation-duration: 0s !important;
+  transition-duration: 0s !important;
+}
+.eco-mode .gold-glow,
+.eco-mode .gold-border {
+  box-shadow: none !important;
 }
 
 /* Prevent double-tap zoom on interactive elements */
