@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, Bookmark, BookmarkCheck, Check, Copy,
-  Plus, Minus, ChevronUp, X, Loader2
+  Plus, Minus, ChevronUp, X, Loader2, Volume2, Pause
 } from "lucide-react";
 import {
   Popover,
@@ -34,18 +34,16 @@ const arabicDigits = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"
 const formatAyahNumber = (n: number) =>
   String(n).split("").map(d => arabicDigits[+d]).join("");
 
-/** Strip basmala from first ayah of surahs (except Fatiha & Tawbah) */
 const stripBasmala = (text: string, surahNum: number, ayahInSurah: number): string => {
   if (ayahInSurah !== 1 || surahNum === 1 || surahNum === 9) return text;
   return text.replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ\s*/, "") || text;
 };
 
-/** Clean ayah text: remove existing end-of-ayah symbols and sajda marks */
+/** Clean ayah text: remove existing end-of-ayah symbols, sajda marks, and U+06E9 */
 const cleanAyahText = (text: string): string => {
-  // Remove existing ayah end symbols (۝ with or without number) to avoid duplicates
   let cleaned = text.replace(/[\u06DD][\u0660-\u0669]*/g, "");
-  // Replace sajda symbol ۩ with a styled placeholder
-  cleaned = cleaned.replace(/۩/g, "⌂SAJDA⌂");
+  // Remove sajda symbols (both ۩ U+06E9 and circle)
+  cleaned = cleaned.replace(/[\u06E9۩]/g, "");
   return cleaned.trim();
 };
 
@@ -60,26 +58,8 @@ function highlightInline(text: string, query: string) {
   );
 }
 
-/** Render ayah text with sajda icon replacement */
-const renderAyahText = (text: string, searchQuery: string) => {
-  const cleaned = cleanAyahText(text);
-  if (!cleaned.includes("⌂SAJDA⌂")) {
-    const displayText = stripBasmalaFromCleaned(cleaned);
-    return searchQuery ? highlightInline(displayText, searchQuery) : displayText;
-  }
-  // Split by sajda placeholder and render with icon
-  const parts = cleaned.split("⌂SAJDA⌂");
-  return parts.map((part, i) => (
-    <span key={i}>
-      {searchQuery ? highlightInline(part, searchQuery) : part}
-      {i < parts.length - 1 && (
-        <span className="inline-block mx-1 text-primary/80 text-xs align-middle" title="سجدة">۩</span>
-      )}
-    </span>
-  ));
-};
-
-const stripBasmalaFromCleaned = (text: string) => text;
+// Audio manager singleton
+let globalAudio: HTMLAudioElement | null = null;
 
 // Ayah with popover interaction
 const AyahSpan = ({
@@ -91,6 +71,8 @@ const AyahSpan = ({
   onCopy,
   onToggleBookmark,
   ayahRefs,
+  playingAyah,
+  onPlayAyah,
 }: {
   ayah: Ayah;
   surahNumber: number;
@@ -100,9 +82,12 @@ const AyahSpan = ({
   onCopy: (text: string, num: number) => void;
   onToggleBookmark: (num: number) => void;
   ayahRefs: React.MutableRefObject<Map<number, HTMLSpanElement>>;
+  playingAyah: number | null;
+  onPlayAyah: (ayah: Ayah) => void;
 }) => {
   const [open, setOpen] = useState(false);
   const isBookmarked = bookmarks.includes(ayah.number);
+  const isPlaying = playingAyah === ayah.number;
   const rawText = stripBasmala(ayah.text, surahNumber, ayah.numberInSurah);
   const cleaned = cleanAyahText(rawText);
 
@@ -111,10 +96,11 @@ const AyahSpan = ({
       <PopoverTrigger asChild>
         <span
           ref={el => { if (el) ayahRefs.current.set(ayah.number, el); }}
-          className="ayah-span inline cursor-pointer transition-all duration-200 hover:text-primary/90 rounded-sm"
-          style={{ textShadow: "0 0 8px hsl(45 80% 55% / 0.08)" }}
+          className={`ayah-span inline cursor-pointer transition-all duration-200 rounded-sm ${
+            isPlaying ? "playing-ayah" : "hover:text-primary/90"
+          }`}
         >
-          <span>{searchQuery ? highlightInline(cleaned, searchQuery) : renderCleanedText(cleaned)}</span>
+          <span>{searchQuery ? highlightInline(cleaned, searchQuery) : cleaned}</span>
           <span
             className="inline text-primary/70 select-none"
             style={{ fontSize: fontSize * 0.6 }}
@@ -127,6 +113,13 @@ const AyahSpan = ({
         sideOffset={8}
       >
         <div className="flex items-center gap-2" dir="rtl">
+          <button
+            onClick={(e) => { e.stopPropagation(); onPlayAyah(ayah); setOpen(false); }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-arabic bg-secondary/60 hover:bg-primary/20 text-foreground/90 hover:text-primary transition-colors"
+          >
+            {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+            {isPlaying ? "إيقاف" : "استماع"}
+          </button>
           <button
             onClick={(e) => { e.stopPropagation(); onCopy(ayah.text, ayah.number); setOpen(false); }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-arabic bg-secondary/60 hover:bg-primary/20 text-foreground/90 hover:text-primary transition-colors"
@@ -151,30 +144,10 @@ const AyahSpan = ({
   );
 };
 
-/** Render cleaned text handling sajda marks */
-const renderCleanedText = (text: string) => {
-  if (!text.includes("⌂SAJDA⌂")) return text;
-  const parts = text.split("⌂SAJDA⌂");
-  return parts.map((part, i) => (
-    <span key={i}>
-      {part}
-      {i < parts.length - 1 && (
-        <span className="inline-block mx-0.5 text-primary text-sm align-middle" title="موضع سجدة">۩</span>
-      )}
-    </span>
-  ));
-};
-
 // Lazy Surah component
 const LazySurah = ({
-  surah,
-  fontSize,
-  bookmarks,
-  searchQuery,
-  onCopy,
-  onToggleBookmark,
-  surahRef,
-  ayahRefs,
+  surah, fontSize, bookmarks, searchQuery, onCopy, onToggleBookmark,
+  surahRef, ayahRefs, playingAyah, onPlayAyah,
 }: {
   surah: Surah;
   fontSize: number;
@@ -184,6 +157,8 @@ const LazySurah = ({
   onToggleBookmark: (num: number) => void;
   surahRef: (el: HTMLDivElement | null) => void;
   ayahRefs: React.MutableRefObject<Map<number, HTMLSpanElement>>;
+  playingAyah: number | null;
+  onPlayAyah: (ayah: Ayah) => void;
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -210,10 +185,10 @@ const LazySurah = ({
     >
       {/* Surah header */}
       <div className="text-center my-6 sm:my-8">
-        <div className="inline-block gold-border rounded-2xl px-8 sm:px-12 py-4 sm:py-5 bg-secondary/40 gold-glow">
+        <div className="inline-block gold-border rounded-2xl px-8 sm:px-12 py-5 sm:py-6 bg-secondary/40 gold-glow">
           <h2
-            className="text-2xl sm:text-3xl font-display gold-text leading-relaxed"
-            style={{ lineHeight: 1.8 }}
+            className="text-2xl sm:text-3xl font-display gold-text"
+            style={{ lineHeight: 2 }}
           >
             {surah.name}
           </h2>
@@ -222,7 +197,7 @@ const LazySurah = ({
         {showBasmala && (
           <p
             className="mt-5 text-foreground/90 font-uthmanic"
-            style={{ fontSize: fontSize * 0.9, lineHeight: 2 }}
+            style={{ fontSize: fontSize * 0.9, lineHeight: 2.2 }}
           >
             {BASMALA}
           </p>
@@ -247,6 +222,8 @@ const LazySurah = ({
               onCopy={onCopy}
               onToggleBookmark={onToggleBookmark}
               ayahRefs={ayahRefs}
+              playingAyah={playingAyah}
+              onPlayAyah={onPlayAyah}
             />
           ))}
         </p>
@@ -275,6 +252,7 @@ const QuranTab = () => {
   const [showBookmarks, setShowBookmarks] = useState(false);
   const [copiedAyah, setCopiedAyah] = useState<number | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [playingAyah, setPlayingAyah] = useState<number | null>(null);
 
   const surahRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const ayahRefs = useRef<Map<number, HTMLSpanElement>>(new Map());
@@ -378,6 +356,74 @@ const QuranTab = () => {
     setTimeout(() => setCopiedAyah(null), 2000);
   }, []);
 
+  // Audio playback with auto-advance
+  const playAyah = useCallback((ayah: Ayah) => {
+    // If same ayah is playing, stop it
+    if (playingAyah === ayah.number) {
+      globalAudio?.pause();
+      globalAudio = null;
+      setPlayingAyah(null);
+      return;
+    }
+
+    // Stop previous
+    if (globalAudio) {
+      globalAudio.pause();
+      globalAudio = null;
+    }
+
+    const audioUrl = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${ayah.number}.mp3`;
+    const audio = new Audio(audioUrl);
+    globalAudio = audio;
+    setPlayingAyah(ayah.number);
+
+    // Scroll to playing ayah
+    const el = ayahRefs.current.get(ayah.number);
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    audio.play().catch(() => {
+      setPlayingAyah(null);
+      globalAudio = null;
+    });
+
+    audio.onended = () => {
+      // Auto-advance to next ayah
+      const nextNum = ayah.number + 1;
+      // Find next ayah in surahs data
+      let nextAyah: Ayah | null = null;
+      for (const s of surahs) {
+        for (const a of s.ayahs) {
+          if (a.number === nextNum) {
+            nextAyah = a;
+            break;
+          }
+        }
+        if (nextAyah) break;
+      }
+      if (nextAyah) {
+        playAyah(nextAyah);
+      } else {
+        setPlayingAyah(null);
+        globalAudio = null;
+      }
+    };
+
+    audio.onerror = () => {
+      setPlayingAyah(null);
+      globalAudio = null;
+    };
+  }, [playingAyah, surahs]);
+
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => {
+      if (globalAudio) {
+        globalAudio.pause();
+        globalAudio = null;
+      }
+    };
+  }, []);
+
   const bookmarkedAyahs = useMemo(() => {
     if (!showBookmarks || surahs.length === 0) return [];
     const all: Ayah[] = [];
@@ -444,6 +490,20 @@ const QuranTab = () => {
           >
             <Bookmark className="w-4 h-4" />
           </button>
+
+          {/* Stop audio button */}
+          {playingAyah !== null && (
+            <button
+              onClick={() => {
+                globalAudio?.pause();
+                globalAudio = null;
+                setPlayingAyah(null);
+              }}
+              className="h-9 w-9 flex items-center justify-center rounded-lg bg-primary/20 text-primary shrink-0 animate-pulse"
+            >
+              <Pause className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
         {/* Row 2: Search */}
@@ -538,6 +598,8 @@ const QuranTab = () => {
             onToggleBookmark={toggleBookmark}
             surahRef={el => { if (el) surahRefs.current.set(surah.number, el); }}
             ayahRefs={ayahRefs}
+            playingAyah={playingAyah}
+            onPlayAyah={playAyah}
           />
         ))}
       </div>
