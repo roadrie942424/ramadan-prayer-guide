@@ -1,9 +1,14 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Search, Bookmark, BookmarkCheck, Check,
+  Search, Bookmark, BookmarkCheck, Check, Copy,
   Plus, Minus, ChevronUp, X, Loader2
 } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface Ayah {
   number: number;
@@ -25,25 +30,146 @@ interface Surah {
 const BASMALA = "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ";
 const AYAH_END_SYMBOL = "\u06DD";
 
-const formatAyahNumber = (n: number) => {
-  const arabicDigits = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
-  return String(n).split("").map(d => arabicDigits[+d]).join("");
-};
+const arabicDigits = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+const formatAyahNumber = (n: number) =>
+  String(n).split("").map(d => arabicDigits[+d]).join("");
 
 /** Strip basmala from first ayah of surahs (except Fatiha & Tawbah) */
 const stripBasmala = (text: string, surahNum: number, ayahInSurah: number): string => {
   if (ayahInSurah !== 1 || surahNum === 1 || surahNum === 9) return text;
-  // The API prepends basmala to first ayah. Remove first ~38 chars
-  const stripped = text.replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ\s*/, "");
-  return stripped || text;
+  return text.replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ\s*/, "") || text;
 };
 
-// Lazy Surah component - only renders content when visible
+/** Clean ayah text: remove existing end-of-ayah symbols and sajda marks */
+const cleanAyahText = (text: string): string => {
+  // Remove existing ayah end symbols (۝ with or without number) to avoid duplicates
+  let cleaned = text.replace(/[\u06DD][\u0660-\u0669]*/g, "");
+  // Replace sajda symbol ۩ with a styled placeholder
+  cleaned = cleaned.replace(/۩/g, "⌂SAJDA⌂");
+  return cleaned.trim();
+};
+
+function highlightInline(text: string, query: string) {
+  if (!query.trim()) return text;
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const parts = text.split(new RegExp(`(${escaped})`, 'g'));
+  return parts.map((part, i) =>
+    part === query
+      ? <mark key={i} className="bg-primary/30 text-foreground rounded px-0.5">{part}</mark>
+      : part
+  );
+}
+
+/** Render ayah text with sajda icon replacement */
+const renderAyahText = (text: string, searchQuery: string) => {
+  const cleaned = cleanAyahText(text);
+  if (!cleaned.includes("⌂SAJDA⌂")) {
+    const displayText = stripBasmalaFromCleaned(cleaned);
+    return searchQuery ? highlightInline(displayText, searchQuery) : displayText;
+  }
+  // Split by sajda placeholder and render with icon
+  const parts = cleaned.split("⌂SAJDA⌂");
+  return parts.map((part, i) => (
+    <span key={i}>
+      {searchQuery ? highlightInline(part, searchQuery) : part}
+      {i < parts.length - 1 && (
+        <span className="inline-block mx-1 text-primary/80 text-xs align-middle" title="سجدة">۩</span>
+      )}
+    </span>
+  ));
+};
+
+const stripBasmalaFromCleaned = (text: string) => text;
+
+// Ayah with popover interaction
+const AyahSpan = ({
+  ayah,
+  surahNumber,
+  fontSize,
+  bookmarks,
+  searchQuery,
+  onCopy,
+  onToggleBookmark,
+  ayahRefs,
+}: {
+  ayah: Ayah;
+  surahNumber: number;
+  fontSize: number;
+  bookmarks: number[];
+  searchQuery: string;
+  onCopy: (text: string, num: number) => void;
+  onToggleBookmark: (num: number) => void;
+  ayahRefs: React.MutableRefObject<Map<number, HTMLSpanElement>>;
+}) => {
+  const [open, setOpen] = useState(false);
+  const isBookmarked = bookmarks.includes(ayah.number);
+  const rawText = stripBasmala(ayah.text, surahNumber, ayah.numberInSurah);
+  const cleaned = cleanAyahText(rawText);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <span
+          ref={el => { if (el) ayahRefs.current.set(ayah.number, el); }}
+          className="ayah-span inline cursor-pointer transition-all duration-200 hover:text-primary/90 rounded-sm"
+          style={{ textShadow: "0 0 8px hsl(45 80% 55% / 0.08)" }}
+        >
+          <span>{searchQuery ? highlightInline(cleaned, searchQuery) : renderCleanedText(cleaned)}</span>
+          <span
+            className="inline text-primary/70 select-none"
+            style={{ fontSize: fontSize * 0.6 }}
+          >{AYAH_END_SYMBOL}{formatAyahNumber(ayah.numberInSurah)}</span>
+        </span>
+      </PopoverTrigger>
+      <PopoverContent
+        className="w-auto p-2 bg-card/95 backdrop-blur-md border-primary/30 shadow-[0_0_20px_hsl(45_80%_55%/0.15)]"
+        side="top"
+        sideOffset={8}
+      >
+        <div className="flex items-center gap-2" dir="rtl">
+          <button
+            onClick={(e) => { e.stopPropagation(); onCopy(ayah.text, ayah.number); setOpen(false); }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-arabic bg-secondary/60 hover:bg-primary/20 text-foreground/90 hover:text-primary transition-colors"
+          >
+            <Copy className="w-3.5 h-3.5" />
+            نسخ
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onToggleBookmark(ayah.number); setOpen(false); }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-arabic transition-colors ${
+              isBookmarked
+                ? "bg-primary/20 text-primary"
+                : "bg-secondary/60 hover:bg-primary/20 text-foreground/90 hover:text-primary"
+            }`}
+          >
+            {isBookmarked ? <BookmarkCheck className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
+            {isBookmarked ? "إزالة" : "حفظ"}
+          </button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
+/** Render cleaned text handling sajda marks */
+const renderCleanedText = (text: string) => {
+  if (!text.includes("⌂SAJDA⌂")) return text;
+  const parts = text.split("⌂SAJDA⌂");
+  return parts.map((part, i) => (
+    <span key={i}>
+      {part}
+      {i < parts.length - 1 && (
+        <span className="inline-block mx-0.5 text-primary text-sm align-middle" title="موضع سجدة">۩</span>
+      )}
+    </span>
+  ));
+};
+
+// Lazy Surah component
 const LazySurah = ({
   surah,
   fontSize,
   bookmarks,
-  copiedAyah,
   searchQuery,
   onCopy,
   onToggleBookmark,
@@ -53,7 +179,6 @@ const LazySurah = ({
   surah: Surah;
   fontSize: number;
   bookmarks: number[];
-  copiedAyah: number | null;
   searchQuery: string;
   onCopy: (text: string, num: number) => void;
   onToggleBookmark: (num: number) => void;
@@ -80,75 +205,50 @@ const LazySurah = ({
     <div
       ref={el => { surahRef(el); sentinelRef.current = el as any; }}
       id={`surah-${surah.number}`}
-      className="mb-8"
+      className="mb-10"
       style={{ contentVisibility: "auto", containIntrinsicSize: "auto 800px" }}
     >
       {/* Surah header */}
-      <div className="text-center my-5 sm:my-7">
-        <div className="inline-block gold-border rounded-2xl px-6 sm:px-10 py-3 sm:py-4 bg-secondary/40 gold-glow">
-          <h2 className="text-xl sm:text-2xl font-display gold-text">{surah.name}</h2>
-          <p className="text-xs text-muted-foreground mt-1 font-arabic">{surah.numberOfAyahs} آيات</p>
+      <div className="text-center my-6 sm:my-8">
+        <div className="inline-block gold-border rounded-2xl px-8 sm:px-12 py-4 sm:py-5 bg-secondary/40 gold-glow">
+          <h2
+            className="text-2xl sm:text-3xl font-display gold-text leading-relaxed"
+            style={{ lineHeight: 1.8 }}
+          >
+            {surah.name}
+          </h2>
+          <p className="text-xs text-muted-foreground mt-1.5 font-arabic">{surah.numberOfAyahs} آيات</p>
         </div>
         {showBasmala && (
           <p
-            className="mt-4 text-foreground/90 font-uthmanic"
-            style={{ fontSize: fontSize * 0.9 }}
+            className="mt-5 text-foreground/90 font-uthmanic"
+            style={{ fontSize: fontSize * 0.9, lineHeight: 2 }}
           >
             {BASMALA}
           </p>
         )}
       </div>
 
-      {/* Ayahs as inline text in a single <p> */}
+      {/* Ayahs as inline text */}
       {isVisible ? (
         <p
-          className="leading-[2.4] sm:leading-[2.6] text-foreground/95 text-justify px-2 sm:px-4 font-uthmanic"
+          className="quran-text text-foreground/95 text-justify px-3 sm:px-5 font-uthmanic"
           dir="rtl"
-          style={{ fontSize }}
+          style={{ fontSize, lineHeight: 2.6 }}
         >
-          {surah.ayahs.map(ayah => {
-            const text = stripBasmala(ayah.text, surah.number, ayah.numberInSurah);
-            return (
-              <span
-                key={ayah.number}
-                ref={el => { if (el) ayahRefs.current.set(ayah.number, el); }}
-                className="ayah-span relative inline group"
-              >
-                <span
-                  className="cursor-pointer hover:text-primary/90 transition-colors"
-                  onClick={() => onCopy(ayah.text, ayah.number)}
-                >
-                  {searchQuery ? highlightInline(text, searchQuery) : text}
-                </span>
-                <span
-                  className="inline text-primary/80 select-none"
-                  style={{ fontSize: fontSize * 0.65 }}
-                >{AYAH_END_SYMBOL}{formatAyahNumber(ayah.numberInSurah)}</span>
-                <span
-                  className="inline-block align-middle cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={e => { e.stopPropagation(); onToggleBookmark(ayah.number); }}
-                >
-                  {bookmarks.includes(ayah.number) ? (
-                    <BookmarkCheck className="w-3.5 h-3.5 text-primary inline" />
-                  ) : (
-                    <Bookmark className="w-3.5 h-3.5 text-muted-foreground hover:text-primary inline" />
-                  )}
-                </span>
-                <AnimatePresence>
-                  {copiedAyah === ayah.number && (
-                    <motion.span
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="absolute -top-8 right-1/2 translate-x-1/2 bg-card border border-primary/30 rounded-lg px-2 py-1 text-xs text-primary flex items-center gap-1 whitespace-nowrap z-20 shadow-lg"
-                    >
-                      <Check className="w-3 h-3" /> تم النسخ
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </span>
-            );
-          })}
+          {surah.ayahs.map(ayah => (
+            <AyahSpan
+              key={ayah.number}
+              ayah={ayah}
+              surahNumber={surah.number}
+              fontSize={fontSize}
+              bookmarks={bookmarks}
+              searchQuery={searchQuery}
+              onCopy={onCopy}
+              onToggleBookmark={onToggleBookmark}
+              ayahRefs={ayahRefs}
+            />
+          ))}
         </p>
       ) : (
         <div style={{ minHeight: 400 }} />
@@ -156,17 +256,6 @@ const LazySurah = ({
     </div>
   );
 };
-
-function highlightInline(text: string, query: string) {
-  if (!query.trim()) return text;
-  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const parts = text.split(new RegExp(`(${escaped})`, 'g'));
-  return parts.map((part, i) =>
-    part === query
-      ? <mark key={i} className="bg-primary/30 text-foreground rounded px-0.5">{part}</mark>
-      : part
-  );
-}
 
 const QuranTab = () => {
   const [surahs, setSurahs] = useState<Surah[]>([]);
@@ -219,7 +308,6 @@ const QuranTab = () => {
   useEffect(() => { localStorage.setItem("quran-bookmarks", JSON.stringify(bookmarks)); }, [bookmarks]);
   useEffect(() => { localStorage.setItem("quran-font-size", String(fontSize)); }, [fontSize]);
 
-  // Scroll-to-top via native scroll
   useEffect(() => {
     const onScroll = () => setShowScrollTop(window.scrollY > 600);
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -324,57 +412,59 @@ const QuranTab = () => {
   return (
     <div className="flex flex-col">
       {/* Sticky toolbar */}
-      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b border-border pb-2 space-y-2 px-1">
-        {/* Row 1 */}
-        <div className="flex items-center gap-2">
+      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b border-border px-2 sm:px-3 py-2.5 space-y-2.5">
+        {/* Row 1: Surah select + controls */}
+        <div className="flex items-center gap-2 h-9">
           <select
             onChange={e => scrollToSurah(+e.target.value)}
             defaultValue=""
-            className="flex-1 bg-secondary/60 border border-border rounded-lg px-2 py-1.5 text-sm font-arabic text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            className="flex-1 min-w-0 bg-secondary/60 border border-border rounded-lg px-2.5 h-9 text-sm font-arabic text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           >
-            <option value="" disabled>السورة</option>
+            <option value="" disabled>انتقل إلى سورة...</option>
             {surahs.map(s => (
               <option key={s.number} value={s.number}>{s.name}</option>
             ))}
           </select>
 
-          <div className="flex items-center gap-1 gold-border rounded-lg px-1.5 py-1 bg-secondary/40">
-            <button onClick={() => setFontSize(f => Math.max(18, f - 2))} className="p-0.5 text-muted-foreground hover:text-foreground transition-colors">
+          <div className="flex items-center gap-1 gold-border rounded-lg px-2 h-9 bg-secondary/40 shrink-0">
+            <button onClick={() => setFontSize(f => Math.max(18, f - 2))} className="p-1 text-muted-foreground hover:text-foreground transition-colors">
               <Minus className="w-3.5 h-3.5" />
             </button>
-            <span className="text-xs text-muted-foreground min-w-[1.5rem] text-center">{fontSize}</span>
-            <button onClick={() => setFontSize(f => Math.min(48, f + 2))} className="p-0.5 text-muted-foreground hover:text-foreground transition-colors">
+            <span className="text-xs text-muted-foreground min-w-[1.5rem] text-center select-none">{fontSize}</span>
+            <button onClick={() => setFontSize(f => Math.min(48, f + 2))} className="p-1 text-muted-foreground hover:text-foreground transition-colors">
               <Plus className="w-3.5 h-3.5" />
             </button>
           </div>
 
           <button
             onClick={() => setShowBookmarks(!showBookmarks)}
-            className={`p-2 rounded-lg transition-colors ${showBookmarks ? 'bg-primary/20 text-primary' : 'bg-secondary/40 text-muted-foreground hover:text-foreground'}`}
+            className={`h-9 w-9 flex items-center justify-center rounded-lg transition-colors shrink-0 ${
+              showBookmarks ? 'bg-primary/20 text-primary' : 'bg-secondary/40 text-muted-foreground hover:text-foreground border border-border'
+            }`}
           >
             <Bookmark className="w-4 h-4" />
           </button>
         </div>
 
         {/* Row 2: Search */}
-        <div className="relative">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <div className="relative h-9">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="ابحث في القرآن الكريم..."
-            className="w-full bg-secondary/60 border border-border rounded-lg pr-9 pl-3 py-2 text-sm font-arabic text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            className="w-full h-9 bg-secondary/60 border border-border rounded-lg pr-9 pl-8 text-sm font-arabic text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             dir="rtl"
           />
           {searchQuery && (
             <button onClick={() => setSearchQuery("")} className="absolute left-3 top-1/2 -translate-y-1/2">
-              <X className="w-4 h-4 text-muted-foreground" />
+              <X className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
             </button>
           )}
         </div>
 
-        {/* Search results */}
+        {/* Search results dropdown */}
         <AnimatePresence>
           {searchQuery.trim() && (
             <motion.div
@@ -435,7 +525,7 @@ const QuranTab = () => {
         </AnimatePresence>
       </div>
 
-      {/* Quran content - native body scroll, no fixed height */}
+      {/* Quran content */}
       <div className="px-2 sm:px-4 pt-4 pb-20">
         {surahs.map(surah => (
           <LazySurah
@@ -443,7 +533,6 @@ const QuranTab = () => {
             surah={surah}
             fontSize={fontSize}
             bookmarks={bookmarks}
-            copiedAyah={copiedAyah}
             searchQuery={searchQuery}
             onCopy={copyAyah}
             onToggleBookmark={toggleBookmark}
@@ -452,6 +541,20 @@ const QuranTab = () => {
           />
         ))}
       </div>
+
+      {/* Copied toast */}
+      <AnimatePresence>
+        {copiedAyah !== null && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-card border border-primary/30 rounded-xl px-4 py-2 text-sm text-primary flex items-center gap-2 shadow-[0_0_20px_hsl(45_80%_55%/0.2)] font-arabic"
+          >
+            <Check className="w-4 h-4" /> تم نسخ الآية
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Scroll to top */}
       <AnimatePresence>

@@ -205,7 +205,12 @@
   }
 }
 
-/* Quran highlight animation */
+/* Quran styles */
+.quran-text {
+  font-family: 'Uthmanic', 'Amiri', serif;
+  direction: rtl;
+}
+
 .highlight-ayah {
   background: hsl(var(--primary) / 0.15);
   border-radius: 4px;
@@ -224,7 +229,11 @@
 }
 
 .ayah-span {
-  transition: background 0.3s ease;
+  transition: all 0.2s ease;
+}
+
+.ayah-span:hover {
+  text-shadow: 0 0 12px hsl(45 80% 55% / 0.25);
 }
 
 /* Prevent double-tap zoom on interactive elements */
