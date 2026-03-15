@@ -9,6 +9,7 @@ import HamburgerMenu, { WaqfType } from "@/components/HamburgerMenu";
 import CannonAnimation from "@/components/CannonAnimation";
 import QuranTab from "@/pages/QuranTab";
 import TadabburModal from "@/components/TadabburModal";
+import LeaderboardTab from "@/components/LeaderboardTab";
 import { governorates } from "@/data/governorateData";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useEcoMode } from "@/contexts/EcoModeContext";
@@ -16,8 +17,7 @@ import ramadanBg from "@/assets/ramadan-bg.jpg";
 import crescentMoon from "@/assets/crescent-moon.png";
 import { motion } from "framer-motion";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { BookOpen, Calendar, Leaf } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
+import { BookOpen, Calendar, Trophy, Leaf } from "lucide-react";
 
 const Index = () => {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
@@ -69,68 +69,55 @@ const Index = () => {
     <div className="min-h-screen relative touch-manipulation" dir="rtl">
       {/* Background */}
       {!ecoMode && (
-        <div
-          className="fixed inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${ramadanBg})`, backgroundAttachment: "fixed" }}
-        />
+        <div className="fixed inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${ramadanBg})`, backgroundAttachment: "fixed" }} />
       )}
       <div className="fixed inset-0 bg-background/85" />
 
-      {/* Cannon Animation */}
       {!ecoMode && <CannonAnimation timings={timings} testMode={testCannon} />}
       {testCannon && setTimeout(() => setTestCannon(false), 7000) && null}
 
-      {/* Daily Tadabbur */}
       <TadabburModal />
 
-      {/* Content */}
       <div className="relative z-10 max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-10 space-y-6 sm:space-y-10">
         {/* Hijri Date Header */}
-        <motion.div
-          className="text-center"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <motion.div
-            className="inline-flex items-center gap-2 sm:gap-3 gold-border rounded-full px-4 sm:px-5 py-1.5 sm:py-2 bg-secondary/40"
-            animate={ecoMode ? {} : { y: [0, -4, 0] }}
-            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <motion.img
-              src={crescentMoon}
-              alt="هلال رمضان"
-              className="w-7 h-7 sm:w-10 sm:h-10 object-contain"
-              animate={ecoMode ? {} : { rotate: [0, 8, -8, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            />
+        <motion.div className="text-center" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+          <motion.div className="inline-flex items-center gap-2 sm:gap-3 gold-border rounded-full px-4 sm:px-5 py-1.5 sm:py-2 bg-secondary/40"
+            animate={ecoMode ? {} : { y: [0, -4, 0] }} transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}>
+            <motion.img src={crescentMoon} alt="هلال رمضان" className="w-7 h-7 sm:w-10 sm:h-10 object-contain"
+              animate={ecoMode ? {} : { rotate: [0, 8, -8, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} />
             <span className="text-base sm:text-xl font-display gold-text">{currentHijriDate} ١٤٤٦ هـ</span>
           </motion.div>
         </motion.div>
 
         {/* Eco Mode Toggle */}
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center gap-3">
           <Leaf className="w-4 h-4 text-primary/70" />
           <label className="text-xs font-arabic text-muted-foreground">الوضع الاقتصادي</label>
-          <Switch checked={ecoMode} onCheckedChange={setEcoMode} />
+          <button onClick={() => setEcoMode(!ecoMode)}
+            className={`eco-toggle relative w-12 h-6 rounded-full transition-colors duration-300 ${
+              ecoMode ? "bg-primary" : "bg-secondary/80 border border-border"
+            }`}>
+            <span className={`absolute top-0.5 w-5 h-5 rounded-full transition-all duration-300 shadow-md ${
+              ecoMode ? "right-0.5 bg-primary-foreground" : "right-[calc(100%-1.375rem)] bg-muted-foreground/60"
+            }`} />
+          </button>
         </div>
 
         {/* Tabs */}
         <Tabs defaultValue="imsakia" className="w-full">
           <TabsList className="w-full bg-secondary/50 gold-border rounded-xl p-1 h-auto">
-            <TabsTrigger
-              value="imsakia"
-              className="flex-1 rounded-lg py-2.5 text-sm sm:text-base font-arabic gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_12px_hsl(45_80%_55%/0.2)] transition-all"
-            >
-              <Calendar className="w-4 h-4" />
-              الإمساكية
+            <TabsTrigger value="imsakia"
+              className="flex-1 rounded-lg py-2.5 text-sm sm:text-base font-arabic gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_12px_hsl(45_80%_55%/0.2)] transition-all">
+              <Calendar className="w-4 h-4" /> الإمساكية
             </TabsTrigger>
-            <TabsTrigger
-              value="quran"
-              className="flex-1 rounded-lg py-2.5 text-sm sm:text-base font-arabic gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_12px_hsl(45_80%_55%/0.2)] transition-all"
-            >
-              <BookOpen className="w-4 h-4" />
-              القرآن الكريم
+            <TabsTrigger value="quran"
+              className="flex-1 rounded-lg py-2.5 text-sm sm:text-base font-arabic gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_12px_hsl(45_80%_55%/0.2)] transition-all">
+              <BookOpen className="w-4 h-4" /> القرآن
+            </TabsTrigger>
+            <TabsTrigger value="leaderboard"
+              className="flex-1 rounded-lg py-2.5 text-sm sm:text-base font-arabic gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_12px_hsl(45_80%_55%/0.2)] transition-all">
+              <Trophy className="w-4 h-4" /> الصدارة
             </TabsTrigger>
           </TabsList>
 
@@ -138,62 +125,36 @@ const Index = () => {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}>
               <SadaqahHeader />
             </motion.div>
-
             <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
-              <HamburgerMenu
-                selectedGovernorate={selectedGovernorate}
-                onGovernorateChange={setSelectedGovernorate}
-                waqfType={waqfType}
-                onWaqfTypeChange={setWaqfType}
-                selectedSunniGovernorate={selectedSunniGovernorate}
-                onSunniGovernorateChange={setSelectedSunniGovernorate}
-                selectedSunniRegion={selectedSunniRegion}
-                onSunniRegionChange={setSelectedSunniRegion}
-              />
+              <HamburgerMenu selectedGovernorate={selectedGovernorate} onGovernorateChange={setSelectedGovernorate}
+                waqfType={waqfType} onWaqfTypeChange={setWaqfType}
+                selectedSunniGovernorate={selectedSunniGovernorate} onSunniGovernorateChange={setSelectedSunniGovernorate}
+                selectedSunniRegion={selectedSunniRegion} onSunniRegionChange={setSelectedSunniRegion} />
             </motion.div>
-
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.3 }}>
               <CountdownTimer timings={timings} />
             </motion.div>
-
             <motion.div className="text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
-              <button
-                onClick={() => setTestCannon(true)}
-                className="gold-border rounded-full px-4 py-2 bg-secondary/40 text-sm font-arabic text-foreground/80 hover:bg-primary/20 active:scale-95 transition-all"
-              >
+              <button onClick={() => setTestCannon(true)}
+                className="gold-border rounded-full px-4 py-2 bg-secondary/40 text-sm font-arabic text-foreground/80 hover:bg-primary/20 active:scale-95 transition-all">
                 🎆 تجربة مدفع الإفطار
               </button>
             </motion.div>
-
             <motion.div className="text-center" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.5 }}>
-              <motion.h2
-                className="text-xl sm:text-2xl font-display gold-text"
-                animate={ecoMode ? {} : { scale: [1, 1.03, 1] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              >
+              <motion.h2 className="text-xl sm:text-2xl font-display gold-text"
+                animate={ecoMode ? {} : { scale: [1, 1.03, 1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
                 ✦ أيام شهر رمضان ✦
               </motion.h2>
-              <motion.div
-                className="mt-2 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent max-w-xs mx-auto"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ delay: 0.6, duration: 0.8 }}
-              />
+              <motion.div className="mt-2 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent max-w-xs mx-auto"
+                initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 0.6, duration: 0.8 }} />
             </motion.div>
-
             <div className="grid grid-cols-5 sm:grid-cols-6 gap-1.5 sm:gap-3">
               {timings.map((day) => (
-                <DayCard
-                  key={day.day}
-                  day={day.day}
-                  hijriDate={day.hijriDate}
-                  isSelected={selectedDay === day.day}
-                  isToday={todayDay === day.day}
-                  onClick={() => setSelectedDay(day.day)}
-                />
+                <DayCard key={day.day} day={day.day} hijriDate={day.hijriDate}
+                  isSelected={selectedDay === day.day} isToday={todayDay === day.day}
+                  onClick={() => setSelectedDay(day.day)} />
               ))}
             </div>
-
             <motion.div className="text-center pb-4 sm:pb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
               <p className="text-muted-foreground text-xs font-arabic">{getFooterLabel()}</p>
             </motion.div>
@@ -202,14 +163,14 @@ const Index = () => {
           <TabsContent value="quran" className="mt-4 sm:mt-6">
             <QuranTab />
           </TabsContent>
+
+          <TabsContent value="leaderboard" className="mt-4 sm:mt-6">
+            <LeaderboardTab />
+          </TabsContent>
         </Tabs>
       </div>
 
-      <PrayerModal
-        open={selectedDay !== null}
-        onClose={() => setSelectedDay(null)}
-        data={selectedData}
-      />
+      <PrayerModal open={selectedDay !== null} onClose={() => setSelectedDay(null)} data={selectedData} />
     </div>
   );
 };
