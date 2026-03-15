@@ -66,9 +66,9 @@ const LeaderboardTab = () => {
   };
 
   const getRankIcon = (index: number) => {
-    if (index === 0) return <Crown className="w-5 h-5 text-yellow-400" />;
-    if (index === 1) return <Crown className="w-5 h-5 text-gray-300" />;
-    if (index === 2) return <Crown className="w-5 h-5 text-amber-600" />;
+    if (index === 0) return <Crown className="w-5 h-5 text-primary" />;
+    if (index === 1) return <Crown className="w-5 h-5 text-muted-foreground" />;
+    if (index === 2) return <Crown className="w-5 h-5 text-accent" />;
     return <span className="w-5 h-5 flex items-center justify-center text-xs text-muted-foreground font-bold">{index + 1}</span>;
   };
 
