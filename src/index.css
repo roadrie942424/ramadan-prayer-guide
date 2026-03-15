@@ -16,41 +16,30 @@
   :root {
     --background: 222 47% 8%;
     --foreground: 45 80% 90%;
-
     --card: 222 50% 12%;
     --card-foreground: 45 80% 90%;
-
     --popover: 222 50% 10%;
     --popover-foreground: 45 80% 90%;
-
     --primary: 45 80% 55%;
     --primary-foreground: 222 47% 8%;
-
     --secondary: 222 40% 18%;
     --secondary-foreground: 45 60% 85%;
-
     --muted: 222 35% 15%;
     --muted-foreground: 220 15% 55%;
-
     --accent: 45 70% 45%;
     --accent-foreground: 222 47% 8%;
-
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 45 50% 30%;
     --input: 222 35% 20%;
     --ring: 45 80% 55%;
-
     --radius: 0.75rem;
-
     --gold: 45 80% 55%;
     --gold-light: 45 85% 70%;
     --gold-dark: 45 70% 40%;
     --navy: 222 47% 8%;
     --navy-light: 222 40% 16%;
     --navy-mid: 222 45% 12%;
-
     --sidebar-background: 222 50% 10%;
     --sidebar-foreground: 45 80% 90%;
     --sidebar-primary: 45 80% 55%;
@@ -63,133 +52,65 @@
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-
+  * { @apply border-border; }
   body {
     @apply bg-background text-foreground;
     font-family: 'Noto Naskh Arabic', 'Amiri', serif;
   }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Amiri', serif;
-  }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Amiri', serif; }
 }
 
 @layer utilities {
-  .font-arabic {
-    font-family: 'Noto Naskh Arabic', 'Amiri', serif;
-  }
-
-  .font-uthmanic {
-    font-family: 'Uthmanic', 'Amiri', serif;
-  }
-
-  .font-display {
-    font-family: 'Amiri', serif;
-  }
+  .font-arabic { font-family: 'Noto Naskh Arabic', 'Amiri', serif; }
+  .font-uthmanic { font-family: 'Uthmanic', 'Amiri', serif; }
+  .font-display { font-family: 'Amiri', serif; }
 
   .gold-gradient {
     background: linear-gradient(135deg, hsl(45 85% 70%), hsl(45 80% 55%), hsl(45 70% 40%));
   }
-
   .gold-text {
     background: linear-gradient(135deg, hsl(45 85% 70%), hsl(45 80% 55%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-
   .gold-border {
     border: 1px solid hsl(45 50% 30%);
     box-shadow: 0 0 15px hsl(45 80% 55% / 0.1), inset 0 0 15px hsl(45 80% 55% / 0.05);
   }
-
   .gold-glow {
     box-shadow: 0 0 20px hsl(45 80% 55% / 0.15), 0 0 40px hsl(45 80% 55% / 0.05);
   }
 
-  .card-hover {
-    @apply transition-all duration-300;
-  }
-
+  .card-hover { @apply transition-all duration-300; }
   .card-hover:hover {
     transform: translateY(-2px);
     box-shadow: 0 0 25px hsl(45 80% 55% / 0.25), 0 8px 25px hsl(0 0% 0% / 0.3);
   }
 
-  .animate-shimmer {
-    animation: shimmer 3s ease-in-out infinite;
-  }
+  .animate-shimmer { animation: shimmer 3s ease-in-out infinite; }
+  @keyframes shimmer { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
 
-  @keyframes shimmer {
-    0%, 100% { opacity: 0.7; }
-    50% { opacity: 1; }
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
-
-  .animate-float {
-    animation: float 4s ease-in-out infinite;
-  }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  .animate-float { animation: float 4s ease-in-out infinite; }
 
   @keyframes pulse-gold {
     0%, 100% { box-shadow: 0 0 10px hsl(45 80% 55% / 0.2); }
     50% { box-shadow: 0 0 25px hsl(45 80% 55% / 0.4); }
   }
+  .animate-pulse-gold { animation: pulse-gold 2s ease-in-out infinite; }
 
-  .animate-pulse-gold {
-    animation: pulse-gold 2s ease-in-out infinite;
-  }
+  @keyframes fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fade-in-scale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  @keyframes slide-in-right { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes modal-enter { from { opacity: 0; transform: scale(0.92) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+  @keyframes modal-exit { from { opacity: 1; transform: scale(1) translateY(0); } to { opacity: 0; transform: scale(0.92) translateY(12px); } }
 
-  @keyframes fade-in {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes fade-in-scale {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  @keyframes slide-in-right {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-
-  @keyframes modal-enter {
-    from { opacity: 0; transform: scale(0.92) translateY(12px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-  }
-
-  @keyframes modal-exit {
-    from { opacity: 1; transform: scale(1) translateY(0); }
-    to { opacity: 0; transform: scale(0.92) translateY(12px); }
-  }
-
-  .animate-fade-in {
-    animation: fade-in 0.35s ease-out both;
-  }
-
-  .animate-fade-in-scale {
-    animation: fade-in-scale 0.3s ease-out both;
-  }
-
-  .animate-slide-in-right {
-    animation: slide-in-right 0.3s ease-out both;
-  }
-
-  .animate-enter {
-    animation: modal-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
-  .animate-exit {
-    animation: modal-exit 0.25s ease-in both;
-  }
+  .animate-fade-in { animation: fade-in 0.35s ease-out both; }
+  .animate-fade-in-scale { animation: fade-in-scale 0.3s ease-out both; }
+  .animate-slide-in-right { animation: slide-in-right 0.3s ease-out both; }
+  .animate-enter { animation: modal-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .animate-exit { animation: modal-exit 0.25s ease-in both; }
 
   .stagger-1 { animation-delay: 0.05s; }
   .stagger-2 { animation-delay: 0.1s; }
@@ -199,11 +120,7 @@
 }
 
 /* Mobile optimizations */
-@media (max-width: 380px) {
-  body {
-    font-size: 14px;
-  }
-}
+@media (max-width: 380px) { body { font-size: 14px; } }
 
 /* Quran styles */
 .quran-text {
@@ -233,14 +150,40 @@
   text-shadow: 0 0 16px hsl(45 80% 55% / 0.35);
 }
 
-/* Eco mode */
-.eco-mode * {
+/* Eco mode - disable ALL animations, transitions, shadows */
+.eco-mode *,
+.eco-mode *::before,
+.eco-mode *::after {
   animation-duration: 0s !important;
+  animation-delay: 0s !important;
   transition-duration: 0s !important;
+  transition-delay: 0s !important;
 }
+
 .eco-mode .gold-glow,
-.eco-mode .gold-border {
+.eco-mode .gold-border,
+.eco-mode .animate-pulse-gold {
   box-shadow: none !important;
+}
+
+.eco-mode .card-hover:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.eco-mode .ayah-span:hover {
+  text-shadow: none !important;
+}
+
+.eco-mode .playing-ayah {
+  text-shadow: none !important;
+}
+
+/* Eco toggle custom */
+.eco-toggle {
+  cursor: pointer;
+  outline: none;
+  border: none;
 }
 
 /* Prevent double-tap zoom on interactive elements */

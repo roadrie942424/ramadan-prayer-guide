@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 const SadaqahHeader = () => {
   return (
     <div className="text-center space-y-5" dir="rtl">
-      {/* Icon with pulse glow */}
       <motion.div
         className="mx-auto w-20 h-20 sm:w-24 sm:h-24 rounded-full gold-border overflow-hidden gold-glow"
         animate={{ y: [0, -8, 0], scale: [1, 1.03, 1] }}
@@ -13,15 +12,9 @@ const SadaqahHeader = () => {
         <img src={ramadanIcon} alt="Ramadan" className="w-full h-full object-cover" />
       </motion.div>
 
-      {/* Title - plain golden text, no border/background */}
       <div className="space-y-2">
         <motion.h1
-          className="text-3xl sm:text-5xl font-display"
-          style={{
-            color: "#D4AF37",
-            textShadow: "0 0 20px rgba(212,175,55,0.4), 0 0 40px rgba(212,175,55,0.2)",
-            opacity: 1,
-          }}
+          className="text-3xl sm:text-5xl font-display gold-text"
           animate={{ y: [0, -3, 0] }}
           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         >
@@ -38,7 +31,6 @@ const SadaqahHeader = () => {
         </motion.p>
       </div>
 
-      {/* Memorial Section */}
       <motion.div
         className="gold-border rounded-2xl p-4 sm:p-6 bg-secondary/30 max-w-md mx-auto space-y-3"
         initial={{ opacity: 0, y: 25 }}
